@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Share Alert App - AI Equity Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <div class="container">
+    <!-- Header Section -->
+    <header>
+      <div class="brand">
+        <h1>📈 Share Alert App</h1>
+        <span class="badge">July 2026</span>
+      </div>
+      <div class="header-info">
+        <span>Highlighted Equity: <strong id="highlightedSymbol">NVDA</strong></span>
+      </div>
+    </header>
+
+    <!-- Key Metrics Cards -->
+    <section class="metrics-grid">
+      <div class="card">
+        <div class="card-title">Highlighted Symbol</div>
+        <div class="card-value" id="metricSymbol">NVDA</div>
+      </div>
+      <div class="card">
+        <div class="card-title">NVDA Min Price</div>
+        <div class="card-value" id="metricMin">$190.01</div>
+      </div>
+      <div class="card">
+        <div class="card-title">NVDA Max Price</div>
+        <div class="card-value" id="metricMax">$212.50</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Tracked Equities</div>
+        <div class="card-value">13 Tickers</div>
+      </div>
+    </section>
+
+    <!-- AI Feature Section -->
+    <section class="ai-section card">
+      <div class="ai-header">
+        <h2>🤖 AI Market Insights Engine</h2>
+        <button id="runAiBtn" class="btn btn-primary" onclick="generateAiInsights()">Run AI Analysis</button>
+      </div>
+      <div id="aiOutput" class="ai-output">
+        Click "Run AI Analysis" to evaluate equity performance, identify volatility leaders, and summarize trading patterns for July 2026.
+      </div>
+    </section>
+
+    <!-- Controls & Filters Section -->
+    <section class="controls-bar">
+      <div class="filter-group">
+        <input type="text" id="searchInput" class="input-field" placeholder="Search date (e.g. 2026-07-10)..." oninput="applyFilters()">
+        
+        <select id="viewFilter" class="input-field" onchange="applyFilters()">
+          <option value="all">Show All Days</option>
+          <option value="trading">Trading Days Only</option>
+          <option value="weekends">Weekends Only</option>
+        </select>
+      </div>
+
+      <div class="sort-group">
+        <label for="sortSelect">Sort By:</label>
+        <select id="sortSelect" class="input-field" onchange="applySorting()">
+          <option value="date-asc">Date (Ascending)</option>
+          <option value="date-desc">Date (Descending)</option>
+          <option value="nvda-desc">NVDA Price (High to Low)</option>
+          <option value="nvda-asc">NVDA Price (Low to High)</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- Data Table -->
+    <div class="table-container">
+      <table id="stockTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th onclick="sortTableByColumn('date')" class="sortable">Date ⇕</th>
+            <th onclick="sortTableByColumn('NVDA')" class="sortable highlight-col">NVDA ⇕</th>
+            <th onclick="sortTableByColumn('AMZN')" class="sortable">AMZN ⇕</th>
+            <th onclick="sortTableByColumn('MSFT')" class="sortable">MSFT ⇕</th>
+            <th onclick="sortTableByColumn('RBLX')" class="sortable">RBLX ⇕</th>
+            <th onclick="sortTableByColumn('META')" class="sortable">META ⇕</th>
+            <th onclick="sortTableByColumn('GOOGL')" class="sortable">GOOGL ⇕</th>
+            <th onclick="sortTableByColumn('PLTR')" class="sortable">PLTR ⇕</th>
+            <th onclick="sortTableByColumn('COIN')" class="sortable">COIN ⇕</th>
+            <th onclick="sortTableByColumn('TSM')" class="sortable">TSM ⇕</th>
+            <th onclick="sortTableByColumn('TSLA')" class="sortable">TSLA ⇕</th>
+            <th onclick="sortTableByColumn('SPCX')" class="sortable">SPCX ⇕</th>
+            <th onclick="sortTableByColumn('MU')" class="sortable">MU ⇕</th>
+            <th onclick="sortTableByColumn('SABR')" class="sortable">SABR ⇕</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <!-- Populated by app.js -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
