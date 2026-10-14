@@ -3,342 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Share Alert App - Price History Dashboard</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <!-- PapaParse for CSV parsing -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-    <!-- Chart.js for graphics -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Simple Stock Price Extractor</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 50px; background-color: #f4f4f9; }
+        .container { max-width: 400px; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        input, button { width: 100%; padding: 10px; margin-top: 10px; box-sizing: border-box; }
+        button { background-color: #007BFF; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        #result { margin-top: 20px; font-weight: bold; }
+    </style>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans min-h-screen p-4 md:p-8">
-    <div class="max-w-7xl mx-auto space-y-8">
+<body>
+
+<div class="container">
+    <h2>Stock Price Lookup</h2>
+    <label for="ticker">Ticker Symbol (e.g., AAPL.US, MSFT.US):</label>
+    <input type="text" id="ticker" placeholder="AAPL.US">
+
+    <label for="date">Select Date:</label>
+    <input type="date" id="date">
+
+    <button onclick="getStockPrice()">Get Price</button>
+
+    <div id="result"></div>
+</div>
+
+<script>
+    async function getStockPrice() {
+        const ticker = document.getElementById('ticker').value.trim();
+        const selectedDate = document.getElementById('date').value;
+        const resultDiv = document.getElementById('result');
+
+        if (!ticker || !selectedDate) {
+            resultDiv.innerHTML = "Please enter both a ticker and a date.";
+            resultDiv.style.color = "red";
+            return;
+        }
+
+        resultDiv.innerHTML = "Fetching data...";
+        resultDiv.style.color = "black";
+
+        // Stooq CSV URL format for daily data
+        // Stooq uses extensions like .US for US stocks (e.g., AAPL.US)
+        const url = `https://stooq.com/q/d/l/?s=${encodeURIComponent(ticker)}&d1=${selectedDate.replace(/-/g, '')}&d2=${selectedDate.replace(/-/g, '')}&i=d`;
         
-        <!-- Header Section with Refresh Button -->
-        <header class="flex flex-col md:flex-row justify-between items-start md:items-center bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 p-6 rounded-2xl border border-slate-800 shadow-2xl gap-4">
-            <div class="flex items-center gap-4">
-                <div class="bg-emerald-600/20 p-3 rounded-xl border border-emerald-500/30">
-                    <svg class="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                    </svg>
-                </div>
-                <div>
-                    <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight text-white">Share Alert App — Price History</h1>
-                    <p class="text-xs md:text-sm text-slate-400 mt-0.5">Live time-series tracking with weekend value carry-over</p>
-                </div>
-            </div>
-            
-            <div class="flex items-center gap-3">
-                <button id="refreshBtn" onclick="loadSheetData()" class="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-lg shadow-emerald-600/20 cursor-pointer active:scale-95 whitespace-nowrap">
-                    <svg id="refreshIcon" class="w-4 h-4 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                    </svg>
-                    Refresh Data
-                </button>
-            </div>
-        </header>
+        try {
+            // Using a CORS proxy to fetch the CSV file securely from the browser
+            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+            const response = await fetch(proxyUrl);
+            const csvText = await response.text();
 
-        <!-- Chart & Insights Panel -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-2 bg-slate-900/80 backdrop-blur border border-slate-800 p-6 rounded-2xl shadow-xl flex flex-col justify-between">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-lg font-bold text-slate-200">Top 10 Peak Prices (Selected Period)</h2>
-                    <span class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-full font-medium">Market Analytics</span>
-                </div>
-                <div class="relative h-64 w-full">
-                    <canvas id="priceChart"></canvas>
-                </div>
-            </div>
-
-            <!-- Summary Info -->
-            <div class="bg-gradient-to-br from-slate-900 to-emerald-950 border border-slate-800 p-6 rounded-2xl shadow-xl flex flex-col justify-between">
-                <div>
-                    <h2 class="text-lg font-bold text-slate-200 mb-2">Monthly Overview</h2>
-                    <p class="text-xs text-slate-400 mb-6">Metrics reflecting records matching your active month selection.</p>
-                </div>
-                <div class="space-y-4">
-                    <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 flex justify-between items-center">
-                        <span class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Filtered Rows</span>
-                        <span id="filteredRowsCount" class="text-xl font-bold text-emerald-400 font-mono">0</span>
-                    </div>
-                    <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 flex justify-between items-center">
-                        <span class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Feed Status</span>
-                        <span class="flex items-center gap-1.5 text-xs text-emerald-400 font-medium">
-                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Live Stream
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Dynamic Data Table Section with Date/Month Selector Toolbar -->
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden">
-            <div class="p-4 md:p-5 bg-slate-800/40 border-b border-slate-800 flex flex-wrap items-center justify-between gap-4">
-                <div class="flex items-center gap-2">
-                    <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
-                    </svg>
-                    <span class="text-sm font-semibold text-slate-200">Table Date Filter:</span>
-                </div>
-
-                <div class="flex flex-wrap items-center gap-3">
-                    <div class="flex items-center gap-2 bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 shadow-inner">
-                        <span class="text-xs text-slate-400 font-medium">Year:</span>
-                        <select id="yearSelect" onchange="processAndDisplayData()" class="bg-transparent text-sm text-white focus:outline-none cursor-pointer">
-                            <option value="2026" selected class="bg-slate-900">2026</option>
-                            <option value="2025" class="bg-slate-900">2025</option>
-                            <option value="2024" class="bg-slate-900">2024</option>
-                        </select>
-                    </div>
-
-                    <div class="flex items-center gap-2 bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 shadow-inner">
-                        <span class="text-xs text-slate-400 font-medium">Month:</span>
-                        <select id="monthSelect" onchange="processAndDisplayData()" class="bg-transparent text-sm text-white focus:outline-none cursor-pointer">
-                            <option value="All" class="bg-slate-900">All Months</option>
-                            <option value="January" class="bg-slate-900">January</option>
-                            <option value="February" class="bg-slate-900">February</option>
-                            <option value="March" class="bg-slate-900">March</option>
-                            <option value="April" class="bg-slate-900">April</option>
-                            <option value="May" class="bg-slate-900">May</option>
-                            <option value="June" class="bg-slate-900">June</option>
-                            <option value="July" class="bg-slate-900">July</option>
-                            <option value="August" class="bg-slate-900">August</option>
-                            <option value="September" selected class="bg-slate-900">September</option>
-                            <option value="October" class="bg-slate-900">October</option>
-                            <option value="November" class="bg-slate-900">November</option>
-                            <option value="December" class="bg-slate-900">December</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <div class="overflow-x-auto">
-                <table id="dataTable" class="w-full text-left border-collapse">
-                    <thead id="tableHeader"></thead>
-                    <tbody id="tableBody" class="divide-y divide-slate-800/60 text-sm"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <footer class="text-center text-xs text-slate-500 pb-6">
-            Share Alert App &bull; Price History Module
-        </footer>
-    </div>
-
-    <script>
-        // REPLACE THIS URL with your published CSV link for the "Price History" tab
-        const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTuG_3xn7oY5-xtXKk80cO1pw1MPFESrq67FBbcyTSpSeFvOuHYCBXhtO9XoKnzT4ODPrh6-YOMTZ05/pub?gid=1871836325&single=true&output=csv';
-
-        let allRawData = [];
-        let tableColumns = [];
-        let priceChartInstance = null;
-
-        function loadSheetData() {
-            if(!SHEET_CSV_URL.includes('http')) {
-                document.getElementById('tableBody').innerHTML = `<tr><td colspan="5" class="py-8 text-center text-amber-400 font-medium">⚠️ Please configure your published Google Sheet CSV URL for the Price History tab inside the script tag.</td></tr>`;
+            const rows = csvText.trim().split('\n');
+            if (rows.length < 2) {
+                resultDiv.innerHTML = "No data found for this ticker/date.";
+                resultDiv.style.color = "red";
                 return;
             }
 
-            const icon = document.getElementById('refreshIcon');
-            icon.classList.add('animate-spin');
+            // Parse CSV header and row values
+            const headers = rows[0].split(',');
+            const values = rows[1].split(',');
 
-            Papa.parse(SHEET_CSV_URL, {
-                download: true,
-                beforeFirstChunk: function(chunk) {
-                    let lines = chunk.split(/\r\n|\n/);
-                    while (lines.length > 0 && (!lines[0].includes('S.N') && !lines[0].includes('Date'))) {
-                        lines.shift();
-                    }
-                    return lines.join('\n');
-                },
-                header: true,
-                skipEmptyLines: true,
-                complete: function(results) {
-                    allRawData = results.data.filter(row => {
-                        const val = row['S.N'] || row[Object.keys(row)[0]] || '';
-                        return val !== '' && !isNaN(val);
-                    });
-
-                    if (results.meta && results.meta.fields) {
-                        tableColumns = results.meta.fields;
-                    }
-
-                    // Process dataset to carry forward Friday prices into Saturday/Sunday rows
-                    fillWeekendPrices(allRawData, tableColumns);
-
-                    renderTableHeaders();
-                    processAndDisplayData();
-                    setTimeout(() => icon.classList.remove('animate-spin'), 500);
-                },
-                error: function(err) {
-                    console.error('Error fetching data:', err);
-                    icon.classList.remove('animate-spin');
-                }
-            });
-        }
-
-        // Automatically replaces "Weekend" entries with the last known valid price from prior rows
-        function fillWeekendPrices(data, columns) {
-            let lastValidValues = {};
-
-            data.forEach(row => {
-                columns.forEach((col, idx) => {
-                    // Skip S.N and Date columns
-                    if (idx < 2) return;
-
-                    let val = row[col];
-                    if (val && val !== 'Weekend' && val !== '-' && val.trim() !== '') {
-                        lastValidValues[col] = val; // Store latest valid price
-                    } else if (val === 'Weekend' && lastValidValues[col]) {
-                        row[col] = lastValidValues[col]; // Carry forward Friday's price
-                    }
-                });
-            });
-        }
-
-        function renderTableHeaders() {
-            const thead = document.getElementById('tableHeader');
-            if (tableColumns.length === 0) return;
-            
-            let html = '<tr class="bg-slate-800/60 text-slate-400 text-xs uppercase tracking-wider border-b border-slate-800">';
-            tableColumns.forEach((col, index) => {
-                html += `<th class="py-4 px-4 cursor-pointer hover:text-white transition-colors" onclick="sortTable(${index})">${col || 'Col'} ↕</th>`;
-            });
-            html += '</tr>';
-            thead.innerHTML = html;
-        }
-
-        function processAndDisplayData() {
-            const selectedMonthName = document.getElementById('monthSelect').value;
-            const selectedYear = document.getElementById('yearSelect').value;
-
-            const monthMap = {
-                'January': '01', 'February': '02', 'March': '03', 'April': '04',
-                'May': '05', 'June': '06', 'July': '07', 'August': '08',
-                'September': '09', 'October': '10', 'November': '11', 'December': '12'
-            };
-
-            const targetMonthCode = monthMap[selectedMonthName];
-
-            const filteredData = allRawData.filter(row => {
-                const dateVal = row['Date'] || row[tableColumns[1]] || '';
-                if (!dateVal) return false;
-
-                const yearMatch = dateVal.startsWith(selectedYear);
-                const monthMatch = selectedMonthName === 'All' || (targetMonthCode && dateVal.includes(`-${targetMonthCode}-`));
-
-                return yearMatch && monthMatch;
-            });
-
-            document.getElementById('filteredRowsCount').innerText = filteredData.length;
-            renderTable(filteredData);
-            updateChart(filteredData);
-        }
-
-        function renderTable(data) {
-            const tbody = document.getElementById('tableBody');
-            tbody.innerHTML = '';
-            
-            if (data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="15" class="py-8 text-center text-slate-400">No records found for the selected month/year.</td></tr>`;
+            const closeIndex = headers.indexOf('Close');
+            if (closeIndex === -1 || values[closeIndex] === "N/A" || !values[closeIndex]) {
+                resultDiv.innerHTML = "Market closed or invalid ticker/date.";
+                resultDiv.style.color = "red";
                 return;
             }
 
-            data.forEach(row => {
-                const tr = document.createElement('tr');
-                tr.className = 'hover:bg-slate-800/40 transition-colors';
-                
-                let rowHtml = '';
-                tableColumns.forEach((col, idx) => {
-                    let val = row[col] || '';
-                    let isPrice = idx >= 2 && (val.startsWith('\$') || (!isNaN(parseFloat(val)) && val.includes('.')));
-                    
-                    let cellClass = "py-3 px-4 text-slate-300";
-                    if (isPrice) cellClass = "py-3 px-4 text-emerald-400 font-mono font-semibold";
+            const price = values[closeIndex];
+            resultDiv.innerHTML = `Stock: ${ticker.toUpperCase()}<br>Date: ${selectedDate}<br>Closing Price: $${price}`;
+            resultDiv.style.color = "green";
 
-                    rowHtml += `<td class="${cellClass}">${val}</td>`;
-                });
-                tr.innerHTML = rowHtml;
-                tbody.appendChild(tr);
-            });
+        } catch (error) {
+            console.error(error);
+            resultDiv.innerHTML = "Error fetching data. Check your connection or ticker format.";
+            resultDiv.style.color = "red";
         }
+    }
+</script>
 
-        function updateChart(data) {
-            const ctx = document.getElementById('priceChart').getContext('2d');
-            
-            let allPrices = [];
-            data.forEach(row => {
-                Object.keys(row).forEach((key, idx) => {
-                    if (idx >= 2) { // Skip S.N and Date columns
-                        const val = row[key];
-                        if (val && typeof val === 'string' && val !== '-' && val !== 'Weekend') {
-                            const num = parseFloat(val.replace(/[^0-9.-]+/g,""));
-                            if (!isNaN(num) && num > 0) {
-                                allPrices.push({ label: `${key} (${row['Date'] || 'Day'})`, price: num });
-                            }
-                        }
-                    }
-                });
-            });
-
-            allPrices.sort((a, b) => b.price - a.price);
-            const top10 = allPrices.slice(0, 10);
-
-            const labels = top10.map(item => item.label);
-            const prices = top10.map(item => item.price);
-
-            if (priceChartInstance) {
-                priceChartInstance.destroy();
-            }
-
-            priceChartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Price (\$)',
-                        data: prices,
-                        backgroundColor: 'rgba(16, 185, 129, 0.6)',
-                        borderColor: 'rgba(16, 185, 129, 1)',
-                        borderWidth: 2,
-                        borderRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
-                    },
-                    scales: {
-                        x: {
-                            grid: { color: 'rgba(51, 65, 85, 0.3)' },
-                            ticks: { color: '#94a3b8', font: { size: 10 } }
-                        },
-                        y: {
-                            grid: { color: 'rgba(51, 65, 85, 0.3)' },
-                            ticks: { color: '#94a3b8' }
-                        }
-                    }
-                }
-            });
-        }
-
-        let sortDirection = false;
-        function sortTable(columnIndex) {
-            sortDirection = !sortDirection;
-            const key = tableColumns[columnIndex];
-
-            allRawData.sort((a, b) => {
-                let valA = a[key] || '';
-                let valB = b[key] || '';
-                return sortDirection ? valA.localeCompare(valB) : valB.localeCompare(valA);
-            });
-            processAndDisplayData();
-        }
-
-        // Initial Load
-        loadSheetData();
-    </script>
 </body>
 </html>
