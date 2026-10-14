@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Dashboard - Management Panel</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* Top Header Styling */
+        header {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid #334155;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            padding: 10px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-text h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-text p {
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+
+        /* Main Dashboard Container */
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .welcome-banner {
+            margin-bottom: 35px;
+        }
+
+        .welcome-banner h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(to right, #ffffff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .welcome-banner p {
+            color: #94a3b8;
+            font-size: 1rem;
+        }
+
+        /* Grid Cards Layout */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+        }
+
+        .card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            padding: 30px;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: transparent;
+            transition: background 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: #6366f1;
+            box-shadow: 0 12px 30px -10px rgba(99, 102, 241, 0.3);
+        }
+
+        /* Unique accents per card on hover */
+        .card.good2buy:hover::before { background: #3b82f6; }
+        .card.pricehistory:hover::before { background: #10b981; }
+        .card.deposite:hover::before { background: #f59e0b; }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .icon-box {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .good2buy .icon-box { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+        .pricehistory .icon-box { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+        .deposite .icon-box { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+
+        .card-body h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
+
+        .card-body p {
+            font-size: 0.92rem;
+            color: #94a3b8;
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+
+        .card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 15px;
+            border-top: 1px solid #334155;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .good2buy .card-footer { color: #3b82f6; }
+        .pricehistory .card-footer { color: #10b981; }
+        .deposite .card-footer { color: #f59e0b; }
+
+        .arrow-icon {
+            transition: transform 0.2s ease;
+        }
+
+        .card:hover .arrow-icon {
+            transform: translateX(4px);
+        }
+
+        /* Footer Info */
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #64748b;
+            font-size: 0.85rem;
+            border-top: 1px solid #1e293b;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Section -->
+    <header>
+        <div class="logo-area">
+            <div class="logo-icon">
+                <i data-lucide="layout-dashboard" style="color: white; width: 24px; height: 24px;"></i>
+            </div>
+            <div class="logo-text">
+                <h1>App Dashboard</h1>
+                <p>Central Navigation Panel</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Navigation Grid -->
+    <div class="container">
+        <div class="welcome-banner">
+            <h2>Welcome Back</h2>
+            <p>Select a module below to launch your web application pages.</p>
+        </div>
+
+        <div class="grid">
+            <!-- Good2Buy Card -->
+            <a href="Good2Buy.html" class="card good2buy">
+                <div>
+                    <div class="card-header">
+                        <div class="icon-box">
+                            <i data-lucide="shopping-bag" style="width: 24px; height: 24px;"></i>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h3>Good2Buy</h3>
+                        <p>Browse products, track shopping choices, and manage your preferred items seamlessly.</p>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <span>Launch Module</span>
+                    <i data-lucide="arrow-right" class="arrow-icon" style="width: 18px; height: 18px;"></i>
+                </div>
+            </a>
+
+            <!-- PriceHistory Card -->
+            <a href="PriceHistory.html" class="card pricehistory">
+                <div>
+                    <div class="card-header">
+                        <div class="icon-box">
+                            <i data-lucide="trending-up" style="width: 24px; height: 24px;"></i>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h3>Price History</h3>
+                        <p>Analyze market cost trends, track historical data fluctuations, and review past values.</p>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <span>Launch Module</span>
+                    <i data-lucide="arrow-right" class="arrow-icon" style="width: 18px; height: 18px;"></i>
+                </div>
+            </a>
+
+            <!-- Deposite Card -->
+            <a href="deposite.html" class="card deposite">
+                <div>
+                    <div class="card-header">
+                        <div class="icon-box">
+                            <i data-lucide="wallet" style="width: 24px; height: 24px;"></i>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h3>Deposit</h3>
+                        <p>Manage account balances, check transaction status, and process secure financial inputs.</p>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <span>Launch Module</span>
+                    <i data-lucide="arrow-right" class="arrow-icon" style="width: 18px; height: 18px;"></i>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 Project Hub. All rights reserved.</p>
+    </footer>
+
+    <!-- Initialize Lucide Icons Script -->
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>
