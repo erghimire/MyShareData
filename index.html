@@ -3,48 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock Price Extractor</title>
+    <title>Instant Stock Price Lookup</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 50px; background-color: #f4f4f9; }
         .container { max-width: 400px; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        input, button { width: 100%; padding: 10px; margin-top: 10px; box-sizing: border-box; }
-        button { background-color: #007BFF; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        button:hover { background-color: #0056b3; }
+        input { width: 100%; padding: 10px; margin-top: 10px; box-sizing: border-box; }
         #result { margin-top: 20px; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Stock Price Lookup</h2>
+    <h2>Instant Stock Price Lookup</h2>
     <label for="ticker">Ticker Symbol (e.g., AAPL, MSFT):</label>
-    <input type="text" id="ticker" placeholder="AAPL">
+    <input type="text" id="ticker" placeholder="Type ticker (e.g., AAPL)" oninput="debounceLookup()">
 
     <label for="date">Select Date:</label>
-    <input type="date" id="date">
+    <input type="date" id="date" onchange="getStockPrice()">
 
-    <button onclick="getStockPrice()">Get Price</button>
-
-    <div id="result"></div>
+    <div id="result">Start typing a ticker and pick a date...</div>
 </div>
 
 <script>
+    let timeout = null;
+
+    // Set today's date by default on load
+    document.getElementById('date').valueAsDate = new Date();
+
+    function debounceLookup() {
+        clearTimeout(timeout);
+        // Wait 500ms after user stops typing to trigger lookup automatically
+        timeout = setTimeout(getStockPrice, 500);
+    }
+
     async function getStockPrice() {
         let ticker = document.getElementById('ticker').value.trim().toUpperCase();
         const selectedDate = document.getElementById('date').value;
         const resultDiv = document.getElementById('result');
 
-        if (!ticker || !selectedDate) {
-            resultDiv.innerHTML = "Please enter both a ticker and a date.";
-            resultDiv.style.color = "red";
+        if (!ticker) {
+            resultDiv.innerHTML = "Please enter a ticker symbol.";
+            resultDiv.style.color = "black";
+            return;
+        }
+
+        if (!selectedDate) {
+            resultDiv.innerHTML = "Please select a date.";
+            resultDiv.style.color = "black";
             return;
         }
 
         resultDiv.innerHTML = "Fetching data...";
         resultDiv.style.color = "black";
 
-        // Automatically append .US for Stooq behind the scenes so you don't have to type it
-        const formattedTicker = ticker.includes('.') ? ticker : `${ticker}.US`;
+        // Automatically format with .US behind the scenes
+        const formattedTicker = `${ticker}.US`;
         const url = `https://stooq.com/q/d/l/?s=${encodeURIComponent(formattedTicker)}&d1=${selectedDate.replace(/-/g, '')}&d2=${selectedDate.replace(/-/g, '')}&i=d`;
         
         try {
