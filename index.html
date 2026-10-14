@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Share Alert App - Deposit & Withdraw History</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- PapaParse for CSV parsing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <!-- Chart.js for analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen p-4 md:p-8">
+    <div class="max-w-7xl mx-auto space-y-8">
+        
+        <!-- Header Section -->
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 p-6 rounded-2xl border border-slate-800 shadow-2xl gap-4">
+            <div class="flex items-center gap-4">
+                <div class="bg-emerald-600/20 p-3 rounded-xl border border-emerald-500/30">
+                    <svg class="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight text-white">[Share Alert App](https://docs.google.com/spreadsheets/u/0/?authuser=0&usp=sheets_web) — Fund History</h1>
+                    <p class="text-xs md:text-sm text-slate-400 mt-0.5">Live tracking of Deposits and Withdrawals synced from [Google Sheets](https://docs.google.com/spreadsheets/u/0/?authuser=0&usp=sheets_web)</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <button id="refreshBtn" onclick="loadSheetData()" class="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-lg shadow-emerald-600/20 cursor-pointer active:scale-95 whitespace-nowrap">
+                    <svg id="refreshIcon" class="w-4 h-4 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    Refresh Data
+                </button>
+            </div>
+        </header>
+
+        <!-- Summary Metric Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-gradient-to-br from-slate-900 to-emerald-950/40 border border-slate-800 p-6 rounded-2xl shadow-xl flex justify-between items-center">
+                <div>
+                    <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Total Deposits</p>
+                    <h3 id="totalDepositVal" class="text-2xl md:text-3xl font-bold text-emerald-400 font-mono mt-1">\$0.00</h3>
+                </div>
+                <div class="bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/20 text-emerald-400">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-br from-slate-900 to-rose-950/40 border border-slate-800 p-6 rounded-2xl shadow-xl flex justify-between items-center">
+                <div>
+                    <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Total Withdrawals</p>
+                    <h3 id="totalWithdrawVal" class="text-2xl md:text-3xl font-bold text-rose-400 font-mono mt-1">\$0.00</h3>
+                </div>
+                <div class="bg-rose-500/10 p-3 rounded-xl border border-rose-500/20 text-rose-400">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Table Section -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden">
+            <div class="p-4 md:p-5 bg-slate-800/40 border-b border-slate-800 flex items-center justify-between">
+                <h2 class="text-base font-semibold text-slate-200">Transaction History Log</h2>
+                <span class="text-xs text-slate-400">Auto-synced from Google Sheets</span>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table id="dataTable" class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-800/60 text-slate-400 text-xs uppercase tracking-wider border-b border-slate-800">
+                            <th class="py-4 px-6">Deposit Date</th>
+                            <th class="py-4 px-6 text-right">Deposit Amount (AUD)</th>
+                            <th class="py-4 px-6 border-l border-slate-800">Withdraw Date</th>
+                            <th class="py-4 px-6 text-right">Withdraw Amount (AUD)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody" class="divide-y divide-slate-800/60 text-sm">
+                        <!-- Populated Dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <footer class="text-center text-xs text-slate-500 pb-6">
+            [Share Alert App](https://docs.google.com/spreadsheets/u/0/?authuser=0&usp=sheets_web) &bull; Deposit & Withdraw Module
+        </footer>
+    </div>
+
+    <script>
+        // REPLACE THIS URL with your published CSV link for the "Deposite History" tab
+        const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTuG_3xn7oY5-xtXKk80cO1pw1MPFESrq67FBbcyTSpSeFvOuHYCBXhtO9XoKnzT4ODPrh6-YOMTZ05/pub?gid=1954485553&single=true&output=csv';
+
+        function loadSheetData() {
+            if(!SHEET_CSV_URL.includes('http')) {
+                document.getElementById('tableBody').innerHTML = `<tr><td colspan="4" class="py-8 text-center text-amber-400 font-medium">⚠️ Please configure your published Google Sheet CSV URL for the Deposite History tab inside the script tag.</td></tr>`;
+                return;
+            }
+
+            const icon = document.getElementById('refreshIcon');
+            icon.classList.add('animate-spin');
+
+            Papa.parse(SHEET_CSV_URL, {
+                download: true,
+                // Skips rows until header row containing "Deposite Amount" is found
+                beforeFirstChunk: function(chunk) {
+                    let lines = chunk.split(/\r\n|\n/);
+                    while (lines.length > 0 && !lines[0].includes('Date') && !lines[0].includes('Deposite')) {
+                        lines.shift();
+                    }
+                    return lines.join('\n');
+                },
+                header: false, // Using array parsing to map exact column layout seen on screen
+                skipEmptyLines: true,
+                complete: function(results) {
+                    processRows(results.data);
+                    setTimeout(() => icon.classList.remove('animate-spin'), 500);
+                },
+                error: function(err) {
+                    console.error('Error fetching sheet data:', err);
+                    icon.classList.remove('animate-spin');
+                }
+            });
+        }
+
+        function processRows(rows) {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            let totalDeposit = 0;
+            let totalWithdraw = 0;
+            let tableRowsHtml = '';
+
+            // Rows start after headers (Index 2 onwards based on your screenshot layout)
+            for (let i = 2; i < rows.length; i++) {
+                const cols = rows[i];
+                const depDate = cols[0] || '';
+                const depAmt = cols[1] || '';
+                const witDate = cols[2] || '';
+                const witAmt = cols[3] || '';
+
+                // Skip completely empty rows
+                if (!depDate && !depAmt && !witDate && !witAmt) continue;
+
+                // Check for totals row text
+                if (depDate.toLowerCase().includes('total')) {
+                    if (depAmt) totalDeposit = depAmt;
+                    if (witAmt) totalWithdraw = witAmt;
+                    continue;
+                }
+
+                // Accumulate totals if not explicitly captured from total row
+                const cleanDepNum = parseFloat((depAmt || '').replace(/[^0-9.-]+/g,"")) || 0;
+                const cleanWitNum = parseFloat((witAmt || '').replace(/[^0-9.-]+/g,"")) || 0;
+
+                tableRowsHtml += `
+                    <tr class="hover:bg-slate-800/40 transition-colors">
+                        <td class="py-3 px-6 text-slate-300 font-medium">${depDate}</td>
+                        <td class="py-3 px-6 text-right font-mono text-emerald-400 font-semibold">${depAmt ? depAmt : '-'}</td>
+                        <td class="py-3 px-6 text-slate-300 font-medium border-l border-slate-800/60">${witDate}</td>
+                        <td class="py-3 px-6 text-right font-mono text-rose-400 font-semibold">${witAmt ? witAmt : '-'}</td>
+                    </tr>
+                `;
+            }
+
+            tbody.innerHTML = tableRowsHtml || `<tr><td colspan="4" class="py-8 text-center text-slate-400">No transaction records found.</td></tr>`;
+
+            // Display totals
+            if (totalDeposit) document.getElementById('totalDepositVal').innerText = totalDeposit.startsWith('\$') ? totalDeposit : `$${totalDeposit}`;
+            if (totalWithdraw) document.getElementById('totalWithdrawVal').innerText = totalWithdraw.startsWith('\$') ? totalWithdraw : `$${totalWithdraw}`;
+        }
+
+        // Initial Load
+        loadSheetData();
+    </script>
+</body>
+</html>
