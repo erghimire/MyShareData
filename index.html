@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Dashboard - Management Panel</title>
+    <title>Financial Dashboard & Hub</title>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Lucide Icons -->
@@ -17,7 +17,7 @@
         }
 
         body {
-            background-color: #0f172a;
+            background-color: #0b0f19;
             color: #f8fafc;
             min-height: 100vh;
             display: flex;
@@ -27,9 +27,9 @@
 
         /* Top Header Styling */
         header {
-            background: rgba(30, 41, 59, 0.7);
+            background: rgba(15, 23, 42, 0.8);
             backdrop-filter: blur(12px);
-            border-bottom: 1px solid #334155;
+            border-bottom: 1px solid #1e293b;
             padding: 20px 40px;
             display: flex;
             justify-content: space-between;
@@ -62,6 +62,34 @@
             color: #94a3b8;
         }
 
+        .ai-status-badge {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #34d399;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #34d399;
+            border-radius: 50%;
+            box-shadow: 0 0 0 rgba(52, 211, 153, 0.4);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(52, 211, 153, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
+        }
+
         /* Main Dashboard Container */
         .container {
             max-width: 1200px;
@@ -70,22 +98,66 @@
             padding: 0 20px;
         }
 
-        .welcome-banner {
+        /* Hero Finance Banner with Graphic */
+        .hero-banner {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+            border: 1px solid #4338ca;
+            border-radius: 20px;
+            padding: 40px;
             margin-bottom: 35px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
         }
 
-        .welcome-banner h2 {
-            font-size: 2rem;
+        .hero-content {
+            max-width: 600px;
+            z-index: 2;
+        }
+
+        .hero-content h2 {
+            font-size: 2.25rem;
             font-weight: 700;
-            margin-bottom: 8px;
-            background: linear-gradient(to right, #ffffff, #94a3b8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            margin-bottom: 12px;
+            color: #ffffff;
         }
 
-        .welcome-banner p {
-            color: #94a3b8;
-            font-size: 1rem;
+        .hero-content p {
+            color: #c7d2fe;
+            font-size: 1.05rem;
+            line-height: 1.5;
+        }
+
+        .hero-graphic {
+            position: relative;
+            z-index: 2;
+            width: 280px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .hero-graphic img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transform: scale(1.02);
+            transition: transform 0.5s ease;
+        }
+
+        .hero-graphic:hover img {
+            transform: scale(1.08);
+        }
+
+        /* Section Titles */
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #f1f5f9;
         }
 
         /* Grid Cards Layout */
@@ -93,11 +165,12 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 24px;
+            margin-bottom: 40px;
         }
 
         .card {
-            background: #1e293b;
-            border: 1px solid #334155;
+            background: #111827;
+            border: 1px solid #1f2937;
             border-radius: 16px;
             padding: 30px;
             text-decoration: none;
@@ -127,7 +200,6 @@
             box-shadow: 0 12px 30px -10px rgba(99, 102, 241, 0.3);
         }
 
-        /* Unique accents per card on hover */
         .card.good2buy:hover::before { background: #3b82f6; }
         .card.pricehistory:hover::before { background: #10b981; }
         .card.deposite:hover::before { background: #f59e0b; }
@@ -161,7 +233,7 @@
 
         .card-body p {
             font-size: 0.92rem;
-            color: #94a3b8;
+            color: #9ca3af;
             line-height: 1.5;
             margin-bottom: 24px;
         }
@@ -171,7 +243,7 @@
             align-items: center;
             justify-content: space-between;
             padding-top: 15px;
-            border-top: 1px solid #334155;
+            border-top: 1px solid #1f2937;
             font-weight: 500;
             font-size: 0.9rem;
         }
@@ -188,13 +260,67 @@
             transform: translateX(4px);
         }
 
+        /* AI Feature Console Section */
+        .ai-console {
+            background: #111827;
+            border: 1px solid #374151;
+            border-radius: 16px;
+            padding: 30px;
+            margin-top: 20px;
+        }
+
+        .ai-console-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .ai-console-header i {
+            color: #a855f7;
+        }
+
+        .ai-console-header h3 {
+            font-size: 1.15rem;
+            font-weight: 600;
+        }
+
+        .ai-insights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .ai-insight-card {
+            background: #1f2937;
+            border: 1px solid #374151;
+            padding: 20px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .ai-insight-card .tag {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #c084fc;
+        }
+
+        .ai-insight-card p {
+            font-size: 0.9rem;
+            color: #d1d5db;
+        }
+
         /* Footer Info */
         footer {
             text-align: center;
-            padding: 20px;
-            color: #64748b;
+            padding: 25px;
+            color: #6b7280;
             font-size: 0.85rem;
-            border-top: 1px solid #1e293b;
+            border-top: 1px solid #111827;
         }
     </style>
 </head>
@@ -207,19 +333,33 @@
                 <i data-lucide="layout-dashboard" style="color: white; width: 24px; height: 24px;"></i>
             </div>
             <div class="logo-text">
-                <h1>App Dashboard</h1>
-                <p>Central Navigation Panel</p>
+                <h1>Wealth & Shopping Hub</h1>
+                <p>AI Financial Platform</p>
             </div>
+        </div>
+        <div class="ai-status-badge">
+            <span class="pulse-dot"></span>
+            AI Copilot Active
         </div>
     </header>
 
-    <!-- Main Navigation Grid -->
+    <!-- Main Container -->
     <div class="container">
-        <div class="welcome-banner">
-            <h2>Welcome Back</h2>
-            <p>Select a module below to launch your web application pages.</p>
+        
+        <!-- Hero Banner with Financial Stock Graphic -->
+        <div class="hero-banner">
+            <div class="hero-content">
+                <h2>Smart Financial Operations</h2>
+                <p>Monitor your purchases, analyze historical market shifts, and streamline your deposits with real-time AI automation and predictive analytics.</p>
+            </div>
+            <div class="hero-graphic">
+                <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=600&q=80" alt="Financial Market Graph">
+            </div>
         </div>
 
+        <h3 class="section-title">Core Applications</h3>
+
+        <!-- Grid Cards Navigation -->
         <div class="grid">
             <!-- Good2Buy Card -->
             <a href="Good2Buy.html" class="card good2buy">
@@ -231,7 +371,7 @@
                     </div>
                     <div class="card-body">
                         <h3>Good2Buy</h3>
-                        <p>Browse products, track shopping choices, and manage your preferred items seamlessly.</p>
+                        <p>Browse optimized product listings, review smart buying signals, and track preferred consumer goods.</p>
                     </div>
                 </div>
                 <div class="card-footer">
@@ -250,7 +390,7 @@
                     </div>
                     <div class="card-body">
                         <h3>Price History</h3>
-                        <p>Analyze market cost trends, track historical data fluctuations, and review past values.</p>
+                        <p>Analyze market cost trends, track historical data fluctuations, and forecast future value changes.</p>
                     </div>
                 </div>
                 <div class="card-footer">
@@ -268,8 +408,8 @@
                         </div>
                     </div>
                     <div class="card-body">
-                        <h3>Deposit</h3>
-                        <p>Manage account balances, check transaction status, and process secure financial inputs.</p>
+                        <h3>Deposit and Withdraw Details</h3>
+                        <p>Manage account balances, verify secure transaction histories, and execute encrypted financial inputs.</p>
                     </div>
                 </div>
                 <div class="card-footer">
@@ -278,11 +418,34 @@
                 </div>
             </a>
         </div>
+
+        <!-- AI Feature Console Widget -->
+        <div class="ai-console">
+            <div class="ai-console-header">
+                <i data-lucide="bot" style="width: 24px; height: 24px;"></i>
+                <h3>AI Financial Intelligence & Insights</h3>
+            </div>
+            <div class="ai-insights-grid">
+                <div class="ai-insight-card">
+                    <span class="tag">Market Predictor</span>
+                    <p>Price fluctuation metrics suggest optimal acquisition windows for tracked assets over the next 48 hours.</p>
+                </div>
+                <div class="ai-insight-card">
+                    <span class="tag">Spending Alert</span>
+                    <p>Deposit liquidity is stable. No abnormal transaction discrepancies or risks identified today.</p>
+                </div>
+                <div class="ai-insight-card">
+                    <span class="tag">Smart Recommendation</span>
+                    <p>Cross-referencing Good2Buy trends with historical prices reveals a potential 12% average cost savings.</p>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <!-- Footer -->
     <footer>
-        <p>&copy; 2026 Project Hub. All rights reserved.</p>
+        <p>&copy; 2026 Wealth & Shopping Hub. Powered by Advanced AI Engine.</p>
     </footer>
 
     <!-- Initialize Lucide Icons Script -->
