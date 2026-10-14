@@ -23,13 +23,12 @@
                     </svg>
                 </div>
                 <div>
-                    <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight text-white">[Share Alert App](https://docs.google.com/spreadsheets/u/0/?authuser=0&usp=sheets_web) — Price History</h1>
-                    <p class="text-xs md:text-sm text-slate-400 mt-0.5">Live time-series tracking synced from your [Google Sheets](https://docs.google.com/spreadsheets/u/0/?authuser=0&usp=sheets_web)</p>
+                    <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight text-white">Share Alert App — Price History</h1>
+                    <p class="text-xs md:text-sm text-slate-400 mt-0.5">Live time-series tracking with weekend value carry-over</p>
                 </div>
             </div>
             
             <div class="flex items-center gap-3">
-                <!-- Refresh Button -->
                 <button id="refreshBtn" onclick="loadSheetData()" class="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-lg shadow-emerald-600/20 cursor-pointer active:scale-95 whitespace-nowrap">
                     <svg id="refreshIcon" class="w-4 h-4 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
@@ -72,9 +71,8 @@
             </div>
         </div>
 
-        <!-- Dynamic Data Table Section with Date/Month Selector Toolbar on Top of Table -->
+        <!-- Dynamic Data Table Section with Date/Month Selector Toolbar -->
         <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden">
-            <!-- Table Toolbar (Date Selector Options right above the table) -->
             <div class="p-4 md:p-5 bg-slate-800/40 border-b border-slate-800 flex flex-wrap items-center justify-between gap-4">
                 <div class="flex items-center gap-2">
                     <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -86,7 +84,7 @@
                 <div class="flex flex-wrap items-center gap-3">
                     <div class="flex items-center gap-2 bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 shadow-inner">
                         <span class="text-xs text-slate-400 font-medium">Year:</span>
-                        <select id="yearSelect" onchange="filterDataByDate()" class="bg-transparent text-sm text-white focus:outline-none cursor-pointer">
+                        <select id="yearSelect" onchange="processAndDisplayData()" class="bg-transparent text-sm text-white focus:outline-none cursor-pointer">
                             <option value="2026" selected class="bg-slate-900">2026</option>
                             <option value="2025" class="bg-slate-900">2025</option>
                             <option value="2024" class="bg-slate-900">2024</option>
@@ -95,7 +93,7 @@
 
                     <div class="flex items-center gap-2 bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 shadow-inner">
                         <span class="text-xs text-slate-400 font-medium">Month:</span>
-                        <select id="monthSelect" onchange="filterDataByDate()" class="bg-transparent text-sm text-white focus:outline-none cursor-pointer">
+                        <select id="monthSelect" onchange="processAndDisplayData()" class="bg-transparent text-sm text-white focus:outline-none cursor-pointer">
                             <option value="All" class="bg-slate-900">All Months</option>
                             <option value="January" class="bg-slate-900">January</option>
                             <option value="February" class="bg-slate-900">February</option>
@@ -114,21 +112,16 @@
                 </div>
             </div>
 
-            <!-- Table Body Container -->
             <div class="overflow-x-auto">
                 <table id="dataTable" class="w-full text-left border-collapse">
-                    <thead id="tableHeader">
-                        <!-- Populated dynamically -->
-                    </thead>
-                    <tbody id="tableBody" class="divide-y divide-slate-800/60 text-sm">
-                        <!-- Populated dynamically -->
-                    </tbody>
+                    <thead id="tableHeader"></thead>
+                    <tbody id="tableBody" class="divide-y divide-slate-800/60 text-sm"></tbody>
                 </table>
             </div>
         </div>
 
         <footer class="text-center text-xs text-slate-500 pb-6">
-            [Share Alert App](https://docs.google.com/spreadsheets/u/0/?authuser=0&usp=sheets_web) &bull; Price History Module
+            Share Alert App &bull; Price History Module
         </footer>
     </div>
 
@@ -169,14 +162,37 @@
                     if (results.meta && results.meta.fields) {
                         tableColumns = results.meta.fields;
                     }
+
+                    // Process dataset to carry forward Friday prices into Saturday/Sunday rows
+                    fillWeekendPrices(allRawData, tableColumns);
+
                     renderTableHeaders();
-                    filterDataByDate();
+                    processAndDisplayData();
                     setTimeout(() => icon.classList.remove('animate-spin'), 500);
                 },
                 error: function(err) {
                     console.error('Error fetching data:', err);
                     icon.classList.remove('animate-spin');
                 }
+            });
+        }
+
+        // Automatically replaces "Weekend" entries with the last known valid price from prior rows
+        function fillWeekendPrices(data, columns) {
+            let lastValidValues = {};
+
+            data.forEach(row => {
+                columns.forEach((col, idx) => {
+                    // Skip S.N and Date columns
+                    if (idx < 2) return;
+
+                    let val = row[col];
+                    if (val && val !== 'Weekend' && val !== '-' && val.trim() !== '') {
+                        lastValidValues[col] = val; // Store latest valid price
+                    } else if (val === 'Weekend' && lastValidValues[col]) {
+                        row[col] = lastValidValues[col]; // Carry forward Friday's price
+                    }
+                });
             });
         }
 
@@ -192,7 +208,7 @@
             thead.innerHTML = html;
         }
 
-        function filterDataByDate() {
+        function processAndDisplayData() {
             const selectedMonthName = document.getElementById('monthSelect').value;
             const selectedYear = document.getElementById('yearSelect').value;
 
@@ -233,14 +249,12 @@
                 tr.className = 'hover:bg-slate-800/40 transition-colors';
                 
                 let rowHtml = '';
-                tableColumns.forEach(col => {
+                tableColumns.forEach((col, idx) => {
                     let val = row[col] || '';
-                    let isWeekend = val.toLowerCase() === 'weekend';
-                    let isPrice = val.startsWith('\$') || (!isNaN(parseFloat(val)) && val.includes('.'));
+                    let isPrice = idx >= 2 && (val.startsWith('\$') || (!isNaN(parseFloat(val)) && val.includes('.')));
                     
                     let cellClass = "py-3 px-4 text-slate-300";
-                    if (isWeekend) cellClass = "py-3 px-4 text-slate-600 italic font-mono text-xs";
-                    else if (isPrice) cellClass = "py-3 px-4 text-emerald-400 font-mono font-semibold";
+                    if (isPrice) cellClass = "py-3 px-4 text-emerald-400 font-mono font-semibold";
 
                     rowHtml += `<td class="${cellClass}">${val}</td>`;
                 });
@@ -254,10 +268,10 @@
             
             let allPrices = [];
             data.forEach(row => {
-                Object.keys(row).forEach(key => {
-                    if (key !== 'S.N' && key !== 'Date' && key !== tableColumns[0] && key !== tableColumns[1]) {
+                Object.keys(row).forEach((key, idx) => {
+                    if (idx >= 2) { // Skip S.N and Date columns
                         const val = row[key];
-                        if (val && typeof val === 'string' && val !== 'Weekend') {
+                        if (val && typeof val === 'string' && val !== '-' && val !== 'Weekend') {
                             const num = parseFloat(val.replace(/[^0-9.-]+/g,""));
                             if (!isNaN(num) && num > 0) {
                                 allPrices.push({ label: `${key} (${row['Date'] || 'Day'})`, price: num });
@@ -320,7 +334,7 @@
                 let valB = b[key] || '';
                 return sortDirection ? valA.localeCompare(valB) : valB.localeCompare(valA);
             });
-            filterDataByDate();
+            processAndDisplayData();
         }
 
         // Initial Load
