@@ -46,8 +46,8 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div class="lg:col-span-2 bg-slate-900/80 backdrop-blur border border-slate-800 p-6 rounded-2xl shadow-xl flex flex-col justify-between">
                 <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-lg font-bold text-slate-200">Price Overview Analysis</h2>
-                    <span class="text-xs bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2.5 py-1 rounded-full font-medium">Live Metrics</span>
+                    <h2 class="text-lg font-bold text-slate-200">Top 10 Companies by Price</h2>
+                    <span class="text-xs bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2.5 py-1 rounded-full font-medium">Highest Value Assets</span>
                 </div>
                 <div class="relative h-64 w-full">
                     <canvas id="priceChart"></canvas>
@@ -160,10 +160,18 @@
         function updateChart(data) {
             const ctx = document.getElementById('priceChart').getContext('2d');
             
-            // Limit to top 8 items for clean visual rendering on the chart
-            const chartSubset = data.slice(0, 8);
-            const labels = chartSubset.map(row => row['Ticker'] || row['Company'] || 'Asset');
-            const prices = chartSubset.map(row => {
+            // 1. Create a copy and sort data descending by Today's Price
+            const sortedByPrice = [...data].sort((a, b) => {
+                const priceA = parseFloat((a["Today's Price"] || '0').replace(/[^0-9.-]+/g,"")) || 0;
+                const priceB = parseFloat((b["Today's Price"] || '0').replace(/[^0-9.-]+/g,"")) || 0;
+                return priceB - priceA; // Highest price first
+            });
+
+            // 2. Take only the top 10 companies
+            const top10 = sortedByPrice.slice(0, 10);
+
+            const labels = top10.map(row => row['Ticker'] || row['Company'] || 'Asset');
+            const prices = top10.map(row => {
                 const rawPrice = row["Today's Price"] || '0';
                 return parseFloat(rawPrice.replace(/[^0-9.-]+/g,"")) || 0;
             });
@@ -179,7 +187,7 @@
                     datasets: [{
                         label: 'Price (\$)',
                         data: prices,
-                        backgroundColor: 'rgba(99, 102, 241, 0.5)',
+                        backgroundColor: 'rgba(99, 102, 241, 0.6)',
                         borderColor: 'rgba(99, 102, 241, 1)',
                         borderWidth: 2,
                         borderRadius: 6
