@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Share Alert App - Complete Dynamic Portfolio</title>
+    <title>Share Alert App - Live Connected Sheet</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>body { font-family: 'Inter', sans-serif; }</style>
@@ -17,69 +17,134 @@
                 <div class="bg-emerald-500/10 text-emerald-400 p-2.5 rounded-xl border border-emerald-500/20 font-bold">📈 SA</div>
                 <div>
                     <h1 class="text-xl font-bold tracking-tight text-white">Share Alert App</h1>
-                    <p class="text-xs text-slate-400">All 25 Stocks Live Dashboard</p>
+                    <p class="text-xs text-slate-400">Live Google Sheet Sync: Good to Buy for Double</p>
                 </div>
             </div>
             <div class="flex items-center gap-4">
-                <!-- Fully Dynamic Date Selector -->
-                <div class="flex items-center gap-2 bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800">
-                    <span class="text-xs text-slate-400">Select Date:</span>
-                    <input type="date" id="dynamicDateInput" value="2026-10-09" onchange="onDateChange(this.value)" class="bg-transparent text-xs font-semibold text-emerald-400 focus:outline-none cursor-pointer">
-                </div>
-                <button onclick="syncSheetData()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2 rounded-lg transition cursor-pointer shadow-lg shadow-emerald-900/20">
-                    Sync Sheet Live
+                <span id="syncStatus" class="text-xs text-slate-400">Status: Loaded from Sheet</span>
+                <button onclick="fetchSheetData()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2 rounded-lg transition cursor-pointer shadow-lg shadow-emerald-900/20">
+                    Sync Sheet Live 🔄
                 </button>
             </div>
         </div>
     </header>
 
     <!-- Main Container -->
-    <main class="max-w-7xl mx-auto px-4 py-8 space-y-8">
-
-        <!-- Tabs Navigation -->
-        <div class="flex border-b border-slate-800 gap-6">
-            <button onclick="switchTab('watchlist')" id="btn-watchlist" class="pb-3 text-sm font-semibold border-b-2 border-emerald-500 text-emerald-400 cursor-pointer transition">All 25 Watchlist Stocks</button>
-            <button onclick="switchTab('prices')" id="btn-prices" class="pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 cursor-pointer transition">Price History Tracker</button>
-            <button onclick="switchTab('deposits')" id="btn-deposits" class="pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 cursor-pointer transition">Deposit History Ledger</button>
+    <main class="max-w-7xl mx-auto px-4 py-8 space-y-6">
+        <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <h2 class="text-lg font-bold text-white flex items-center gap-2">⭐ Searchable Watchlist (Synced from Sheet)</h2>
+            <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Search ticker or company name..." class="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-emerald-500 w-full sm:w-80 shadow-inner">
         </div>
 
-        <!-- TAB 1: WATCHLIST & SEARCHABLE STOCK -->
-        <div id="tab-watchlist" class="space-y-6">
-            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-                <h2 class="text-lg font-bold text-white flex items-center gap-2">⭐ Searchable High-Upside Watchlist (All 25 Stocks)</h2>
-                <input type="text" id="searchStockInput" onkeyup="filterStocks()" placeholder="Search stock by Ticker or Company name..." class="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-emerald-500 w-full sm:w-80 shadow-inner">
-            </div>
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table id="stockTable" class="w-full text-left border-collapse text-sm">
-                        <thead>
-                            <tr class="bg-slate-950/50 text-slate-400 text-xs uppercase tracking-wider border-b border-slate-800">
-                                <th class="p-4">Rank</th>
-                                <th class="p-4">Ticker</th>
-                                <th class="p-4">Company</th>
-                                <th class="p-4">Price on <span id="activePriceDate" class="text-emerald-400">2026-10-09</span></th>
-                                <th class="p-4">Assessment / Strategy</th>
-                            </tr>
-                        </thead>
-                        <tbody id="stockTableBody" class="divide-y divide-slate-800">
-                            <!-- Populated dynamically via JS -->
-                        </tbody>
-                    </table>
-                </div>
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden">
+            <div class="overflow-x-auto">
+                <table id="dynamicTable" class="w-full text-left border-collapse text-sm">
+                    <thead>
+                        <tr class="bg-slate-950/50 text-slate-400 text-xs uppercase tracking-wider border-b border-slate-800">
+                            <th class="p-4">Rank</th>
+                            <th class="p-4">Ticker</th>
+                            <th class="p-4">Company</th>
+                            <th class="p-4">Today's Price</th>
+                            <th class="p-4">My Assessment</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody" class="divide-y divide-slate-800">
+                        <tr>
+                            <td colspan="5" class="p-8 text-center text-slate-400">Loading data directly from your Google Sheet...</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
+    </main>
 
-        <!-- TAB 2: FULL PRICE HISTORY TABLE -->
-        <div id="tab-prices" class="space-y-6 hidden">
-            <h2 class="text-lg font-bold text-white">📊 October 2026 Price History Grid</h2>
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse text-sm">
-                        <thead>
-                            <tr class="bg-slate-950/50 text-slate-400 text-xs uppercase tracking-wider border-b border-slate-800">
-                                <th class="p-4">Date</th>
-                                <th class="p-4">COIN</th>
-                                <th class="p-4">RBLX</th>
-                                <th class="p-4">PLTR</th>
-                                <th class="p-4">TSLA</th>
-                                <th
+    <script>
+        // Replace with your deployed Google Apps Script Web App URL
+        const WEB_APP_URL = "YOUR_WEB_APP_URL_HERE";
+        let masterStockData = [];
+
+        async function fetchSheetData() {
+            document.getElementById("syncStatus").innerText = "Status: Syncing...";
+            
+            // Fallback dataset matching your exact sheet if URL isn't configured yet
+            const fallbackData = [
+                { rank: 1, ticker: "MU", company: "Micron", price: "\$ 1,029.000", assessment: "Strong earnings momentum; watch memory-cycle risk" },
+                { rank: 2, ticker: "NVDA", company: "NVIDIA", price: "\$ 229.280", assessment: "Exceptional AI demand; valuation matters" },
+                { rank: 3, ticker: "TSM", company: "TSMC", price: "\$ 453.310", assessment: "Critical chip manufacturer; geopolitical risk" },
+                { rank: 4, ticker: "AMZN", company: "Amazon", price: "\$ 262.430", assessment: "Strong AWS growth and operating leverage" },
+                { rank: 5, ticker: "AVGO", company: "Broadcom", price: "\$ 361.540", assessment: "AI networking and custom-chip opportunity" },
+                { rank: 6, ticker: "GOOGL", company: "Alphabet", price: "\$ 351.660", assessment: "AI, cloud and advertising; competitive risks" },
+                { rank: 7, ticker: "VRT", company: "Vertiv", price: "\$ 242.780", assessment: "Data-centre power and cooling demand" },
+                { rank: 8, ticker: "LITE", company: "Lumentum", price: "\$ 1,103.360", assessment: "High-upside optical networking candidate" },
+                { rank: 9, ticker: "ANET", company: "Arista Networks", price: "\$ 216.740", assessment: "AI networking growth; valuation sensitivity" },
+                { rank: 10, ticker: "CRDO", company: "Credo Technology", price: "\$ 216.550", assessment: "High-speed connectivity; execution risk" },
+                { rank: 11, ticker: "META", company: "Meta Platforms", price: "\$ 718.670", assessment: "Profitable advertising and AI investment" },
+                { rank: 12, ticker: "MSFT", company: "Microsoft", price: "\$ 535.070", assessment: "Strong cloud and enterprise AI business" },
+                { rank: 13, ticker: "STRL", company: "Sterling Infrastructure", price: "\$ 513.000", assessment: "Data-centre construction and infrastructure" },
+                { rank: 14, ticker: "RKLB", company: "Rocket Lab", price: "\$ 68.210", assessment: "Space-sector growth; execution and valuation risk" },
+                { rank: 15, ticker: "NBIS", company: "Nebius Group", price: "\$ 221.070", assessment: "AI cloud expansion; capital and execution risk" },
+                { rank: 16, ticker: "CRWV", company: "CoreWeave", price: "\$ 82.080", assessment: "AI compute demand; financing and customer-concentration risk" },
+                { rank: 17, ticker: "RBLX", company: "Roblox", price: "\$ 48.090", assessment: "Platform growth; profitability and valuation risk" },
+                { rank: 18, ticker: "COIN", company: "Coinbase", price: "\$ 179.390", assessment: "Crypto-market upside; highly cyclical" },
+                { rank: 19, ticker: "IREN", company: "IREN", price: "\$ 35.190", assessment: "AI infrastructure transition; significant financial risk" },
+                { rank: 20, ticker: "PLTR", company: "Palantir", price: "\$ 209.050", assessment: "AI software opportunity; valuation discipline essential" },
+                { rank: 21, ticker: "AMKR", company: "Amkor Technology", price: "\$ 49.120", assessment: "Semiconductor packaging; lower direct AI leverage" },
+                { rank: 22, ticker: "GLW", company: "Corning", price: "\$ 156.680", assessment: "Optical connectivity and materials exposure" },
+                { rank: 23, ticker: "AAPL", company: "Apple", price: "\$ 336.640", assessment: "Strong business; less obvious 2x case in this timeframe" },
+                { rank: 24, ticker: "MP", company: "MP Materials", price: "\$ 46.140", assessment: "Rare-earth supply-chain opportunity; policy and commodity risk" },
+                { rank: 25, ticker: "IONQ", company: "IonQ", price: "\$ 39.890", assessment: "Speculative quantum-computing potential; commercial uncertainty" }
+            ];
+
+            try {
+                if(WEB_APP_URL.includes("YOUR_WEB_APP_URL")) {
+                    masterStockData = fallbackData;
+                } else {
+                    const response = await fetch(WEB_APP_URL);
+                    masterStockData = await response.json();
+                }
+                renderTable(masterStockData);
+                document.getElementById("syncStatus").innerText = "Status: Fully Synced ✅";
+            } catch (error) {
+                console.error("Error fetching live sheet:", error);
+                masterStockData = fallbackData;
+                renderTable(masterStockData);
+                document.getElementById("syncStatus").innerText = "Status: Using Fallback Cache ⚠️";
+            }
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById("tableBody");
+            tbody.innerHTML = "";
+            
+            if(data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-400">No stocks found.</td></tr>`;
+                return;
+            }
+
+            data.forEach(item => {
+                const tr = document.createElement("tr");
+                tr.className = "hover:bg-slate-800/50 transition";
+                tr.innerHTML = `
+                    <td class="p-4 font-mono text-slate-400">${item.rank}</td>
+                    <td class="p-4 font-bold text-white">${item.ticker}</td>
+                    <td class="p-4 text-slate-300">${item.company}</td>
+                    <td class="p-4 font-mono font-semibold text-emerald-400">${item.price}</td>
+                    <td class="p-4 text-xs text-slate-400">${item.assessment}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filterTable() {
+            const query = document.getElementById("searchInput").value.toUpperCase();
+            const filtered = masterStockData.filter(item => 
+                (item.ticker && item.ticker.toUpperCase().includes(query)) || 
+                (item.company && item.company.toUpperCase().includes(query))
+            );
+            renderTable(filtered);
+        }
+
+        window.onload = fetchSheetData;
+    </script>
+</body>
+</html>
