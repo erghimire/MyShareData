@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Share Alert App - Portfolio Dashboard</title>
+    <title>Share Alert App - Live Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>body { font-family: 'Inter', sans-serif; }</style>
@@ -16,16 +16,16 @@
             <div class="flex items-center gap-3">
                 <div class="bg-emerald-500/10 text-emerald-400 p-2.5 rounded-xl border border-emerald-500/20 font-bold">📈 SA</div>
                 <div>
-                    <h1 class="text-xl font-bold tracking-tight text-white"><a href="https://docs.google.com/spreadsheets/d/1Bf-dTSVGahobo6dsb7zRaquIZYmEAE-I0OiYoDOvqRA/edit?gid=1871836325#gid=1871836325" target="_blank" class="hover:underline text-white">Share Alert App</a></h1>
-                    <p class="text-xs text-slate-400">Live Portfolio & Price History Tracker</p>
+                    <h1 class="text-xl font-bold tracking-tight text-white">Share Alert App</h1>
+                    <p class="text-xs text-slate-400">Live Dynamic Portfolio & Price History Tracker</p>
                 </div>
             </div>
             <div class="flex items-center gap-3">
                 <span class="text-xs bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700">
-                    User: <strong class="text-white">Roshan Ghimire</strong>
+                    Total Deposits: <strong class="text-white">\$ 69,011.00 AUD</strong>
                 </span>
                 <span class="text-xs bg-emerald-500/10 text-emerald-400 px-3 py-1.5 rounded-lg border border-emerald-500/20 font-medium">
-                    As of 2026-10-14
+                    October 2026 Active
                 </span>
             </div>
         </div>
@@ -34,193 +34,48 @@
     <!-- Main Container -->
     <main class="max-w-7xl mx-auto px-4 py-8 space-y-8">
 
-        <!-- Portfolio Summary Metrics -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-xl">
-                <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Total Market Value</p>
-                <p class="text-2xl font-bold text-white mt-2">NPR 4,136,494.10</p>
-                <span class="text-xs text-emerald-400 mt-2 inline-block font-medium">Cash Div: NPR 62.00</span>
-            </div>
-            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-xl">
-                <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Current Investment</p>
-                <p class="text-2xl font-bold text-white mt-2">NPR 4,531,115.25</p>
-                <span class="text-xs text-slate-400 mt-2 inline-block">Principal Capital Cost</span>
-            </div>
-            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-xl">
-                <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Unrealized Return</p>
-                <p class="text-2xl font-bold text-rose-500 mt-2">-10.34%</p>
-                <span class="text-xs text-rose-400 mt-2 inline-block">NPR -477,081.33</span>
-            </div>
-            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-xl">
-                <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Daily Gain</p>
-                <p class="text-2xl font-bold text-emerald-400 mt-2">+0.433%</p>
-                <span class="text-xs text-emerald-400 mt-2 inline-block">NPR +17,834.04</span>
-            </div>
+        <!-- Tabs Navigation -->
+        <div class="flex border-b border-slate-800 gap-6">
+            <button onclick="switchTab('watchlist')" id="btn-watchlist" class="pb-3 text-sm font-semibold border-b-2 border-emerald-500 text-emerald-400 cursor-pointer transition">Good to Buy Watchlist</button>
+            <button onclick="switchTab('prices')" id="btn-prices" class="pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 cursor-pointer transition">October Price History</button>
+            <button onclick="switchTab('deposits')" id="btn-deposits" class="pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 cursor-pointer transition">Deposit & Withdrawal History</button>
         </div>
 
-        <!-- Holdings Table Section -->
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden">
-            <div class="p-5 border-b border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-4">
-                <h2 class="text-lg font-bold text-white flex items-center gap-2">
-                    📋 My Holdings Overview
-                </h2>
-                <div class="w-full sm:w-72">
-                    <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Search holding symbol..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-slate-200 focus:outline-none focus:border-emerald-500 transition">
+        <!-- TAB 1: WATCHLIST -->
+        <div id="tab-watchlist" class="space-y-6">
+            <div class="flex justify-between items-center">
+                <h2 class="text-lg font-bold text-white flex items-center gap-2">⭐ High-Upside Watchlist ("Good to Buy for Double")</h2>
+                <input type="text" id="searchWatchlist" onkeyup="filterWatchlist()" placeholder="Search ticker or company..." class="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-sm text-slate-200 focus:outline-none focus:border-emerald-500 w-72">
+            </div>
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table id="watchlistTable" class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-slate-950/50 text-slate-400 text-xs uppercase tracking-wider border-b border-slate-800">
+                                <th class="p-4">Rank</th>
+                                <th class="p-4">Ticker</th>
+                                <th class="p-4">Company</th>
+                                <th class="p-4">Today's Price</th>
+                                <th class="p-4">Assessment / Strategy</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800">
+                            <tr class="hover:bg-slate-800/50 transition"><td class="p-4 font-mono">1</td><td class="p-4 font-bold text-white">MU</td><td class="p-4 text-slate-300">Micron</td><td class="p-4 font-mono text-emerald-400">\$ 1,029.000</td><td class="p-4 text-xs text-slate-400">Strong earnings momentum; watch memory-cycle risk</td></tr>
+                            <tr class="hover:bg-slate-800/50 transition"><td class="p-4 font-mono">2</td><td class="p-4 font-bold text-white">NVDA</td><td class="p-4 text-slate-300">NVIDIA</td><td class="p-4 font-mono text-emerald-400">\$ 229.280</td><td class="p-4 text-xs text-slate-400">Exceptional AI demand; valuation matters</td></tr>
+                            <tr class="hover:bg-slate-800/50 transition"><td class="p-4 font-mono">3</td><td class="p-4 font-bold text-white">TSM</td><td class="p-4 text-slate-300">TSMC</td><td class="p-4 font-mono text-emerald-400">\$ 453.310</td><td class="p-4 text-xs text-slate-400">Critical chip manufacturer; geopolitical risk</td></tr>
+                            <tr class="hover:bg-slate-800/50 transition"><td class="p-4 font-mono">4</td><td class="p-4 font-bold text-white">AMZN</td><td class="p-4 text-slate-300">Amazon</td><td class="p-4 font-mono text-emerald-400">\$ 262.430</td><td class="p-4 text-xs text-slate-400">Strong AWS growth and operating leverage</td></tr>
+                            <tr class="hover:bg-slate-800/50 transition"><td class="p-4 font-mono">5</td><td class="p-4 font-bold text-white">AVGO</td><td class="p-4 text-slate-300">Broadcom</td><td class="p-4 font-mono text-emerald-400">\$ 361.540</td><td class="p-4 text-xs text-slate-400">AI networking and custom-chip opportunity</td></tr>
+                            <tr class="hover:bg-slate-800/50 transition"><td class="p-4 font-mono">11</td><td class="p-4 font-bold text-white">META</td><td class="p-4 text-slate-300">Meta Platforms</td><td class="p-4 font-mono text-emerald-400">\$ 718.670</td><td class="p-4 text-xs text-slate-400">Profitable advertising and AI investment</td></tr>
+                            <tr class="hover:bg-slate-800/50 transition"><td class="p-4 font-mono">12</td><td class="p-4 font-bold text-white">MSFT</td><td class="p-4 text-slate-300">Microsoft</td><td class="p-4 font-mono text-emerald-400">\$ 535.070</td><td class="p-4 text-xs text-slate-400">Strong cloud and enterprise AI business</td></tr>
+                            <tr class="hover:bg-slate-800/50 transition"><td class="p-4 font-mono">17</td><td class="p-4 font-bold text-white">RBLX</td><td class="p-4 text-slate-300">Roblox</td><td class="p-4 font-mono text-emerald-400">\$ 48.090</td><td class="p-4 text-xs text-slate-400">Platform growth; profitability and valuation risk</td></tr>
+                            <tr class="hover:bg-slate-800/50 transition"><td class="p-4 font-mono">18</td><td class="p-4 font-bold text-white">COIN</td><td class="p-4 text-slate-300">Coinbase</td><td class="p-4 font-mono text-emerald-400">\$ 179.390</td><td class="p-4 text-xs text-slate-400">Crypto-market upside; highly cyclical</td></tr>
+                            <tr class="hover:bg-slate-800/50 transition"><td class="p-4 font-mono">20</td><td class="p-4 font-bold text-white">PLTR</td><td class="p-4 text-slate-300">Palantir</td><td class="p-4 font-mono text-emerald-400">\$ 209.050</td><td class="p-4 text-xs text-slate-400">AI software opportunity; valuation discipline essential</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
-
-            <div class="overflow-x-auto">
-                <table id="holdingsTable" class="w-full text-left border-collapse text-sm">
-                    <thead>
-                        <tr class="bg-slate-950/50 text-slate-400 text-xs uppercase tracking-wider border-b border-slate-800">
-                            <th class="p-4">S.N</th>
-                            <th class="p-4">Holding</th>
-                            <th class="p-4">Daily Gain</th>
-                            <th class="p-4">Qty</th>
-                            <th class="p-4">Purch Price</th>
-                            <th class="p-4">LTP</th>
-                            <th class="p-4">Purch Value</th>
-                            <th class="p-4">Market Value</th>
-                            <th class="p-4">Stop Loss / Target</th>
-                            <th class="p-4">Total Profit (Unrealized)</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-800">
-                        <tr class="hover:bg-slate-800/50 transition">
-                            <td class="p-4 text-slate-400 font-mono text-xs">1</td>
-                            <td class="p-4 font-bold text-white">MNBBL</td>
-                            <td class="p-4 text-emerald-400 font-medium">+0.87%</td>
-                            <td class="p-4 text-slate-300 font-mono">138</td>
-                            <td class="p-4 text-slate-300 font-mono">NPR 250.16</td>
-                            <td class="p-4 text-white font-mono font-semibold">NPR 337.00</td>
-                            <td class="p-4 text-slate-300 font-mono">NPR 34,522.08</td>
-                            <td class="p-4 text-white font-mono font-semibold">NPR 46,506.00</td>
-                            <td class="p-4 text-xs text-slate-400">SL: 348 | TP: 1470</td>
-                            <td class="p-4 font-mono font-medium text-emerald-400">+34.71% (NPR 11,984.00)</td>
-                        </tr>
-                        <tr class="hover:bg-slate-800/50 transition">
-                            <td class="p-4 text-slate-400 font-mono text-xs">2</td>
-                            <td class="p-4 font-bold text-white">MATRI</td>
-                            <td class="p-4 text-emerald-400 font-medium">+1.67%</td>
-                            <td class="p-4 text-slate-300 font-mono">511</td>
-                            <td class="p-4 text-slate-300 font-mono">NPR 955.32</td>
-                            <td class="p-4 text-white font-mono font-semibold">NPR 713.00</td>
-                            <td class="p-4 text-slate-300 font-mono">NPR 488,168.52</td>
-                            <td class="p-4 text-white font-mono font-semibold">NPR 364,343.00</td>
-                            <td class="p-4 text-xs text-slate-400">SL: 712 | TP: 1500</td>
-                            <td class="p-4 font-mono font-medium text-rose-500">-25.37% (NPR -123,827.00)</td>
-                        </tr>
-                        <tr class="hover:bg-slate-800/50 transition">
-                            <td class="p-4 text-slate-400 font-mono text-xs">3</td>
-                            <td class="p-4 font-bold text-white">KMCDB</td>
-                            <td class="p-4 text-emerald-400 font-medium">+1.28%</td>
-                            <td class="p-4 text-slate-300 font-mono">1,500</td>
-                            <td class="p-4 text-slate-300 font-mono">NPR 694.97</td>
-                            <td class="p-4 text-white font-mono font-semibold">NPR 799.00</td>
-                            <td class="p-4 text-slate-300 font-mono">NPR 1,042,455.00</td>
-                            <td class="p-4 text-white font-mono font-semibold">NPR 1,198,500.00</td>
-                            <td class="p-4 text-xs text-slate-400">SL: 555 | TP: 1550</td>
-                            <td class="p-4 font-mono font-medium text-emerald-400">+14.97% (NPR 156,051.00)</td>
-                        </tr>
-                        <tr class="hover:bg-slate-800/50 transition">
-                            <td class="p-4 text-slate-400 font-mono text-xs">4</td>
-                            <td class="p-4 font-bold text-white">SOPL</td>
-                            <td class="p-4 text-rose-500 font-medium">-0.64%</td>
-                            <td class="p-4 text-slate-300 font-mono">10</td>
-                            <td class="p-4 text-slate-300 font-mono">NPR 100.00</td>
-                            <td class="p-4 text-white font-mono font-semibold">NPR 603.10</td>
-                            <td class="p-4 text-slate-300 font-mono">NPR 1,000.00</td>
-                            <td class="p-4 text-white font-mono font-semibold">NPR 6,031.00</td>
-                            <td class="p-4 text-xs text-slate-400">SL: 100 | TP: 2000</td>
-                            <td class="p-4 font-mono font-medium text-emerald-400">+503.10% (NPR 5,031.00)</td>
-                        </tr>
-                        <tr class="hover:bg-slate-800/50 transition">
-                            <td class="p-4 text-slate-400 font-mono text-xs">5</td>
-                            <td class="p-4 font-bold text-white">HLBSL</td>
-                            <td class="p-4 text-emerald-400 font-medium">+0.58%</td>
-                            <td class="p-4 text-slate-300 font-mono">609</td>
-                            <td class="p-4 text-slate-300 font-mono">NPR 934.76</td>
-                            <td class="p-4 text-white font-mono font-semibold">NPR 865.00</td>
-                            <td class="p-4 text-slate-300 font-mono">NPR 569,268.84</td>
-                            <td class="p-4 text-white font-mono font-semibold">NPR 526,785.00</td>
-                            <td class="p-4 text-xs text-slate-400">SL: 880 | TP: 1060</td>
-                            <td class="p-4 font-mono font-medium text-rose-500">-7.46% (NPR -42,483.00)</td>
-                        </tr>
-                        <tr class="hover:bg-slate-800/50 transition">
-                            <td class="p-4 text-slate-400 font-mono text-xs">6</td>
-                            <td class="p-4 font-bold text-white">PMLI</td>
-                            <td class="p-4 text-emerald-400 font-medium">+0.23%</td>
-                            <td class="p-4 text-slate-300 font-mono">128</td>
-                            <td class="p-4 text-slate-300 font-mono">NPR 482.77</td>
-                            <td class="p-4 text-white font-mono font-semibold">NPR 432.00</td>
-                            <td class="p-4 text-slate-300 font-mono">NPR 61,794.56</td>
-                            <td class="p-4 text-white font-mono font-semibold">NPR 55,296.00</td>
-                            <td class="p-4 text-xs text-slate-400">SL: 458 | TP: 600</td>
-                            <td class="p-4 font-mono font-medium text-rose-500">-10.52% (NPR -6,498.00)</td>
-                        </tr>
-                        <tr class="hover:bg-slate-800/50 transition">
-                            <td class="p-4 text-slate-400 font-mono text-xs">7</td>
-                            <td class="p-4 font-bold text-white">CIT</td>
-                            <td class="p-4 text-slate-400 font-medium">0.00%</td>
-                            <td class="p-4 text-slate-300 font-mono">104</td>
-                            <td class="p-4 text-slate-300 font-mono">NPR 1,857.21</td>
-                            <td class="p-4 text-white font-mono font-semibold">NPR 1,710.00</td>
-                            <td class="p-4 text-slate-300 font-mono">NPR 193,149.84</td>
-                            <td class="p-4 text-white font-mono font-semibold">NPR 177,840.00</td>
-                            <td class="p-4 text-xs text-slate-400">SL: 1775 | TP: 2000</td>
-                            <td class="p-4 font-mono font-medium text-rose-500">-7.93% (NPR -15,310.00)</td>
-                        </tr>
-                        <tr class="hover:bg-slate-800/50 transition">
-                            <td class="p-4 text-slate-400 font-mono text-xs">8</td>
-                            <td class="p-4 font-bold text-white">NRN</td>
-                            <td class="p-4 text-emerald-400 font-medium">+0.43%</td>
-                            <td class="p-4 text-slate-300 font-mono">1</td>
-                            <td class="p-4 text-slate-300 font-mono">NPR 100.00</td>
-                            <td class="p-4 text-white font-mono font-semibold">NPR 1,368.20</td>
-                            <td class="p-4 text-slate-300 font-mono">NPR 100.00</td>
-                            <td class="p-4 text-white font-mono font-semibold">NPR 1,368.20</td>
-                            <td class="p-4 text-xs text-slate-400">SL: 100 | TP: 2000</td>
-                            <td class="p-4 font-mono font-medium text-emerald-400">+1,268.20% (NPR 1,268.00)</td>
-                        </tr>
-                        <tr class="hover:bg-slate-800/50 transition">
-                            <td class="p-4 text-slate-400 font-mono text-xs">9</td>
-                            <td class="p-4 font-bold text-white">HIDCL</td>
-                            <td class="p-4 text-emerald-400 font-medium">+0.12%</td>
-                            <td class="p-4 text-slate-300 font-mono">460</td>
-                            <td class="p-4 text-slate-300 font-mono">NPR 216.35</td>
-                            <td class="p-4 text-white font-mono font-semibold">NPR 250.80</td>
-                            <td class="p-4 text-slate-300 font-mono">NPR 99,521.00</td>
-                            <td class="p-4 text-white font-mono font-semibold">NPR 115,368.00</td>
-                            <td class="p-4 text-xs text-slate-400">SL: 145 | TP: 430</td>
-                            <td class="p-4 font-mono font-medium text-emerald-400">+15.92% (NPR 15,846.00)</td>
-                        </tr>
-                        <tr class="hover:bg-slate-800/50 transition">
-                            <td class="p-4 text-slate-400 font-mono text-xs">10</td>
-                            <td class="p-4 font-bold text-white">GBLBS</td>
-                            <td class="p-4 text-rose-500 font-medium">-1.35%</td>
-                            <td class="p-4 text-slate-300 font-mono">1,164</td>
-                            <td class="p-4 text-slate-300 font-mono">NPR 1,210.33</td>
-                            <td class="p-4 text-white font-mono font-semibold">NPR 641.20</td>
-                            <td class="p-4 text-slate-300 font-mono">NPR 1,408,824.12</td>
-                            <td class="p-4 text-white font-mono font-semibold">NPR 746,356.80</td>
-                            <td class="p-4 text-xs text-slate-400">SL: 745 | TP: 3400</td>
-                            <td class="p-4 font-mono font-medium text-rose-500">-47.02% (NPR -662,472.00)</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
         </div>
-    </main>
 
-    <script>
-        function filterTable() {
-            const input = document.getElementById("searchInput").value.toUpperCase();
-            const rows = document.querySelectorAll("#holdingsTable tbody tr");
-            rows.forEach(row => {
-                const symbol = row.cells[1].textContent;
-                row.style.display = symbol.toUpperCase().includes(input) ? "" : "none";
-            });
-        }
-    </script>
-</body>
-</html>
+        <!-- TAB 2: PRICES -->
+        <div id="tab-prices" class="space-y-6 hidden">
+            <h2 class="text-lg font-bold text
