@@ -14,8 +14,8 @@
 <body class="bg-slate-950 text-slate-100 font-sans min-h-screen p-4 md:p-8">
     <div class="max-w-7xl mx-auto space-y-8">
         
-        <!-- Header Section with Dynamic Month/Year Selectors -->
-        <header class="flex flex-col lg:flex-row justify-between items-start lg:items-center bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 p-6 rounded-2xl border border-slate-800 shadow-2xl gap-4">
+        <!-- Header Section with Refresh Button -->
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 p-6 rounded-2xl border border-slate-800 shadow-2xl gap-4">
             <div class="flex items-center gap-4">
                 <div class="bg-emerald-600/20 p-3 rounded-xl border border-emerald-500/30">
                     <svg class="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -23,47 +23,18 @@
                     </svg>
                 </div>
                 <div>
-                    <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight text-white">Share Alert App — Price History</h1>
-                    <p class="text-xs md:text-sm text-slate-400 mt-0.5">Filter by Month & Year with live Google Sheet synchronization</p>
+                    <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight text-white">[Share Alert App](https://docs.google.com/spreadsheets/u/0/?authuser=0&usp=sheets_web) — Price History</h1>
+                    <p class="text-xs md:text-sm text-slate-400 mt-0.5">Live time-series tracking synced from your [Google Sheets](https://docs.google.com/spreadsheets/u/0/?authuser=0&usp=sheets_web)</p>
                 </div>
             </div>
             
-            <!-- Dynamic Month / Year Selection Controls -->
-            <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-                <div class="flex items-center gap-2 bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 shadow-inner">
-                    <span class="text-xs text-slate-400 font-medium">Month:</span>
-                    <select id="monthSelect" onchange="filterDataByDate()" class="bg-transparent text-sm text-white focus:outline-none cursor-pointer">
-                        <option value="All" class="bg-slate-900">All Months</option>
-                        <option value="January" class="bg-slate-900">January</option>
-                        <option value="February" class="bg-slate-900">February</option>
-                        <option value="March" class="bg-slate-900">March</option>
-                        <option value="April" class="bg-slate-900">April</option>
-                        <option value="May" class="bg-slate-900">May</option>
-                        <option value="June" class="bg-slate-900">June</option>
-                        <option value="July" class="bg-slate-900">July</option>
-                        <option value="August" class="bg-slate-900">August</option>
-                        <option value="September" selected class="bg-slate-900">September</option>
-                        <option value="October" class="bg-slate-900">October</option>
-                        <option value="November" class="bg-slate-900">November</option>
-                        <option value="December" class="bg-slate-900">December</option>
-                    </select>
-                </div>
-
-                <div class="flex items-center gap-2 bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 shadow-inner">
-                    <span class="text-xs text-slate-400 font-medium">Year:</span>
-                    <select id="yearSelect" onchange="filterDataByDate()" class="bg-transparent text-sm text-white focus:outline-none cursor-pointer">
-                        <option value="2026" selected class="bg-slate-900">2026</option>
-                        <option value="2025" class="bg-slate-900">2025</option>
-                        <option value="2024" class="bg-slate-900">2024</option>
-                    </select>
-                </div>
-                
+            <div class="flex items-center gap-3">
                 <!-- Refresh Button -->
                 <button id="refreshBtn" onclick="loadSheetData()" class="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-lg shadow-emerald-600/20 cursor-pointer active:scale-95 whitespace-nowrap">
                     <svg id="refreshIcon" class="w-4 h-4 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                     </svg>
-                    Refresh
+                    Refresh Data
                 </button>
             </div>
         </header>
@@ -72,7 +43,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div class="lg:col-span-2 bg-slate-900/80 backdrop-blur border border-slate-800 p-6 rounded-2xl shadow-xl flex flex-col justify-between">
                 <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-lg font-bold text-slate-200">Top 10 Peak Prices (Filtered Range)</h2>
+                    <h2 class="text-lg font-bold text-slate-200">Top 10 Peak Prices (Selected Period)</h2>
                     <span class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-full font-medium">Market Analytics</span>
                 </div>
                 <div class="relative h-64 w-full">
@@ -101,27 +72,68 @@
             </div>
         </div>
 
-        <!-- Dynamic Data Table Section (Starts at S.N row 2) -->
+        <!-- Dynamic Data Table Section with Date/Month Selector Toolbar on Top of Table -->
         <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden">
+            <!-- Table Toolbar (Date Selector Options right above the table) -->
+            <div class="p-4 md:p-5 bg-slate-800/40 border-b border-slate-800 flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+                    </svg>
+                    <span class="text-sm font-semibold text-slate-200">Table Date Filter:</span>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-3">
+                    <div class="flex items-center gap-2 bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 shadow-inner">
+                        <span class="text-xs text-slate-400 font-medium">Year:</span>
+                        <select id="yearSelect" onchange="filterDataByDate()" class="bg-transparent text-sm text-white focus:outline-none cursor-pointer">
+                            <option value="2026" selected class="bg-slate-900">2026</option>
+                            <option value="2025" class="bg-slate-900">2025</option>
+                            <option value="2024" class="bg-slate-900">2024</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-center gap-2 bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 shadow-inner">
+                        <span class="text-xs text-slate-400 font-medium">Month:</span>
+                        <select id="monthSelect" onchange="filterDataByDate()" class="bg-transparent text-sm text-white focus:outline-none cursor-pointer">
+                            <option value="All" class="bg-slate-900">All Months</option>
+                            <option value="January" class="bg-slate-900">January</option>
+                            <option value="February" class="bg-slate-900">February</option>
+                            <option value="March" class="bg-slate-900">March</option>
+                            <option value="April" class="bg-slate-900">April</option>
+                            <option value="May" class="bg-slate-900">May</option>
+                            <option value="June" class="bg-slate-900">June</option>
+                            <option value="July" class="bg-slate-900">July</option>
+                            <option value="August" class="bg-slate-900">August</option>
+                            <option value="September" selected class="bg-slate-900">September</option>
+                            <option value="October" class="bg-slate-900">October</option>
+                            <option value="November" class="bg-slate-900">November</option>
+                            <option value="December" class="bg-slate-900">December</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table Body Container -->
             <div class="overflow-x-auto">
                 <table id="dataTable" class="w-full text-left border-collapse">
                     <thead id="tableHeader">
-                        <!-- Populated from row 2 header mapping -->
+                        <!-- Populated dynamically -->
                     </thead>
                     <tbody id="tableBody" class="divide-y divide-slate-800/60 text-sm">
-                        <!-- Populated Dynamically -->
+                        <!-- Populated dynamically -->
                     </tbody>
                 </table>
             </div>
         </div>
 
         <footer class="text-center text-xs text-slate-500 pb-6">
-            Share Alert App &bull; Price History Module
+            [Share Alert App](https://docs.google.com/spreadsheets/u/0/?authuser=0&usp=sheets_web) &bull; Price History Module
         </footer>
     </div>
 
     <script>
-        // REPLACE THIS URL with your published Google Sheet CSV link for the "Price History" tab
+        // REPLACE THIS URL with your published CSV link for the "Price History" tab
         const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTuG_3xn7oY5-xtXKk80cO1pw1MPFESrq67FBbcyTSpSeFvOuHYCBXhtO9XoKnzT4ODPrh6-YOMTZ05/pub?gid=1871836325&single=true&output=csv';
 
         let allRawData = [];
@@ -139,25 +151,26 @@
 
             Papa.parse(SHEET_CSV_URL, {
                 download: true,
-                // Since row 1 has Month/Year controls and row 2 has S.N, Date, COIN etc., 
-                // we skip the first row so PapaParse grabs headers properly from row 2 (S.N).
                 beforeFirstChunk: function(chunk) {
                     let lines = chunk.split(/\r\n|\n/);
-                    // Discard row 1 if it contains metadata labels like "Month" / "September"
-                    if (lines.length > 1 && lines[0].includes('Month')) {
-                        lines.shift(); 
+                    while (lines.length > 0 && (!lines[0].includes('S.N') && !lines[0].includes('Date'))) {
+                        lines.shift();
                     }
                     return lines.join('\n');
                 },
                 header: true,
                 skipEmptyLines: true,
                 complete: function(results) {
-                    allRawData = results.data;
+                    allRawData = results.data.filter(row => {
+                        const val = row['S.N'] || row[Object.keys(row)[0]] || '';
+                        return val !== '' && !isNaN(val);
+                    });
+
                     if (results.meta && results.meta.fields) {
                         tableColumns = results.meta.fields;
                     }
                     renderTableHeaders();
-                    filterDataByDate(); // Applies initial month selection filter
+                    filterDataByDate();
                     setTimeout(() => icon.classList.remove('animate-spin'), 500);
                 },
                 error: function(err) {
@@ -179,12 +192,10 @@
             thead.innerHTML = html;
         }
 
-        // Filter data based on selected Month & Year dropdowns matching the 'Date' column format (e.g. 2026-09-01)
         function filterDataByDate() {
             const selectedMonthName = document.getElementById('monthSelect').value;
             const selectedYear = document.getElementById('yearSelect').value;
 
-            // Map month names to numbers (e.g. September -> "09")
             const monthMap = {
                 'January': '01', 'February': '02', 'March': '03', 'April': '04',
                 'May': '05', 'June': '06', 'July': '07', 'August': '08',
@@ -194,13 +205,11 @@
             const targetMonthCode = monthMap[selectedMonthName];
 
             const filteredData = allRawData.filter(row => {
-                // Find date field (usually named 'Date' or second column)
                 const dateVal = row['Date'] || row[tableColumns[1]] || '';
-                
                 if (!dateVal) return false;
 
                 const yearMatch = dateVal.startsWith(selectedYear);
-                const monthMatch = targetMonthName === 'All' || (targetMonthCode && dateVal.includes(`-${targetMonthCode}-`));
+                const monthMatch = selectedMonthName === 'All' || (targetMonthCode && dateVal.includes(`-${targetMonthCode}-`));
 
                 return yearMatch && monthMatch;
             });
@@ -246,7 +255,6 @@
             let allPrices = [];
             data.forEach(row => {
                 Object.keys(row).forEach(key => {
-                    // Skip metadata columns like S.N and Date
                     if (key !== 'S.N' && key !== 'Date' && key !== tableColumns[0] && key !== tableColumns[1]) {
                         const val = row[key];
                         if (val && typeof val === 'string' && val !== 'Weekend') {
@@ -259,7 +267,6 @@
                 });
             });
 
-            // Sort descending to get highest prices for Top 10 chart
             allPrices.sort((a, b) => b.price - a.price);
             const top10 = allPrices.slice(0, 10);
 
@@ -303,7 +310,6 @@
             });
         }
 
-        // Basic Sorting
         let sortDirection = false;
         function sortTable(columnIndex) {
             sortDirection = !sortDirection;
