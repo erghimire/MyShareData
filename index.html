@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Stock Price Extractor</title>
+    <title>Stock Price Extractor</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 50px; background-color: #f4f4f9; }
         .container { max-width: 400px; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
@@ -17,8 +17,8 @@
 
 <div class="container">
     <h2>Stock Price Lookup</h2>
-    <label for="ticker">Ticker Symbol (e.g., AAPL.US, MSFT.US):</label>
-    <input type="text" id="ticker" placeholder="AAPL.US">
+    <label for="ticker">Ticker Symbol (e.g., AAPL, MSFT):</label>
+    <input type="text" id="ticker" placeholder="AAPL">
 
     <label for="date">Select Date:</label>
     <input type="date" id="date">
@@ -30,7 +30,7 @@
 
 <script>
     async function getStockPrice() {
-        const ticker = document.getElementById('ticker').value.trim();
+        let ticker = document.getElementById('ticker').value.trim().toUpperCase();
         const selectedDate = document.getElementById('date').value;
         const resultDiv = document.getElementById('result');
 
@@ -43,24 +43,22 @@
         resultDiv.innerHTML = "Fetching data...";
         resultDiv.style.color = "black";
 
-        // Stooq CSV URL format for daily data
-        // Stooq uses extensions like .US for US stocks (e.g., AAPL.US)
-        const url = `https://stooq.com/q/d/l/?s=${encodeURIComponent(ticker)}&d1=${selectedDate.replace(/-/g, '')}&d2=${selectedDate.replace(/-/g, '')}&i=d`;
+        // Automatically append .US for Stooq behind the scenes so you don't have to type it
+        const formattedTicker = ticker.includes('.') ? ticker : `${ticker}.US`;
+        const url = `https://stooq.com/q/d/l/?s=${encodeURIComponent(formattedTicker)}&d1=${selectedDate.replace(/-/g, '')}&d2=${selectedDate.replace(/-/g, '')}&i=d`;
         
         try {
-            // Using a CORS proxy to fetch the CSV file securely from the browser
             const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
             const response = await fetch(proxyUrl);
             const csvText = await response.text();
 
             const rows = csvText.trim().split('\n');
             if (rows.length < 2) {
-                resultDiv.innerHTML = "No data found for this ticker/date.";
+                resultDiv.innerHTML = "No data found for this ticker/date. Check if the market was open.";
                 resultDiv.style.color = "red";
                 return;
             }
 
-            // Parse CSV header and row values
             const headers = rows[0].split(',');
             const values = rows[1].split(',');
 
@@ -72,12 +70,12 @@
             }
 
             const price = values[closeIndex];
-            resultDiv.innerHTML = `Stock: ${ticker.toUpperCase()}<br>Date: ${selectedDate}<br>Closing Price: $${price}`;
+            resultDiv.innerHTML = `Stock: ${ticker}<br>Date: ${selectedDate}<br>Closing Price: $${price}`;
             resultDiv.style.color = "green";
 
         } catch (error) {
             console.error(error);
-            resultDiv.innerHTML = "Error fetching data. Check your connection or ticker format.";
+            resultDiv.innerHTML = "Error fetching data. Check your connection.";
             resultDiv.style.color = "red";
         }
     }
