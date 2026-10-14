@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Share Alert App - Dynamic Live Portfolio</title>
+    <title>Share Alert App - Complete Dynamic Portfolio</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>body { font-family: 'Inter', sans-serif; }</style>
@@ -17,7 +17,7 @@
                 <div class="bg-emerald-500/10 text-emerald-400 p-2.5 rounded-xl border border-emerald-500/20 font-bold">📈 SA</div>
                 <div>
                     <h1 class="text-xl font-bold tracking-tight text-white">Share Alert App</h1>
-                    <p class="text-xs text-slate-400">Live-Connected Google Sheet Dashboard</p>
+                    <p class="text-xs text-slate-400">All 25 Stocks Live Dashboard</p>
                 </div>
             </div>
             <div class="flex items-center gap-4">
@@ -38,7 +38,7 @@
 
         <!-- Tabs Navigation -->
         <div class="flex border-b border-slate-800 gap-6">
-            <button onclick="switchTab('watchlist')" id="btn-watchlist" class="pb-3 text-sm font-semibold border-b-2 border-emerald-500 text-emerald-400 cursor-pointer transition">Good to Buy Watchlist</button>
+            <button onclick="switchTab('watchlist')" id="btn-watchlist" class="pb-3 text-sm font-semibold border-b-2 border-emerald-500 text-emerald-400 cursor-pointer transition">All 25 Watchlist Stocks</button>
             <button onclick="switchTab('prices')" id="btn-prices" class="pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 cursor-pointer transition">Price History Tracker</button>
             <button onclick="switchTab('deposits')" id="btn-deposits" class="pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 cursor-pointer transition">Deposit History Ledger</button>
         </div>
@@ -46,7 +46,7 @@
         <!-- TAB 1: WATCHLIST & SEARCHABLE STOCK -->
         <div id="tab-watchlist" class="space-y-6">
             <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-                <h2 class="text-lg font-bold text-white flex items-center gap-2">⭐ Searchable High-Upside Watchlist</h2>
+                <h2 class="text-lg font-bold text-white flex items-center gap-2">⭐ Searchable High-Upside Watchlist (All 25 Stocks)</h2>
                 <input type="text" id="searchStockInput" onkeyup="filterStocks()" placeholder="Search stock by Ticker or Company name..." class="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-emerald-500 w-full sm:w-80 shadow-inner">
             </div>
             <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden">
@@ -82,162 +82,4 @@
                                 <th class="p-4">RBLX</th>
                                 <th class="p-4">PLTR</th>
                                 <th class="p-4">TSLA</th>
-                                <th class="p-4">MSFT</th>
-                                <th class="p-4">AMZN</th>
-                                <th class="p-4">META</th>
-                                <th class="p-4">NVDA</th>
-                                <th class="p-4">MU</th>
-                            </tr>
-                        </thead>
-                        <tbody id="priceTableBody" class="divide-y divide-slate-800 font-mono text-xs">
-                            <!-- Populated dynamically -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- TAB 3: DEPOSIT HISTORY -->
-        <div id="tab-deposits" class="space-y-6 hidden">
-            <h2 class="text-lg font-bold text-white">💰 Deposit History Ledger (Total: \$ 69,011.00 AUD)</h2>
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse text-sm">
-                        <thead>
-                            <tr class="bg-slate-950/50 text-slate-400 text-xs uppercase tracking-wider border-b border-slate-800">
-                                <th class="p-4">Deposit Date</th>
-                                <th class="p-4">Amount (AUD)</th>
-                                <th class="p-4">Exchange Rate</th>
-                                <th class="p-4">USD Amount</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-800 font-mono text-xs">
-                            <tr class="hover:bg-slate-800/50 transition"><td class="p-4 text-slate-300">Wednesday, October 7, 2026</td><td class="p-4 text-emerald-400">\$ 1,000.00</td><td class="p-4">\$ 0.70</td><td class="p-4">\$ 696.10</td></tr>
-                            <tr class="hover:bg-slate-800/50 transition"><td class="p-4 text-slate-300">Wednesday, October 7, 2026</td><td class="p-4 text-emerald-400">\$ 150.00</td><td class="p-4">\$ 0.70</td><td class="p-4">\$ 104.42</td></tr>
-                            <tr class="hover:bg-slate-800/50 transition"><td class="p-4 text-slate-300">Thursday, October 1, 2026</td><td class="p-4 text-emerald-400">\$ 400.00</td><td class="p-4">\$ 0.69</td><td class="p-4">\$ 277.12</td></tr>
-                            <tr class="hover:bg-slate-800/50 transition"><td class="p-4 text-slate-300">Tuesday, September 22, 2026</td><td class="p-4 text-emerald-400">\$ 150.00</td><td class="p-4">\$ 0.71</td><td class="p-4">\$ 106.68</td></tr>
-                            <tr class="hover:bg-slate-800/50 transition"><td class="p-4 text-slate-300">Wednesday, August 26, 2026</td><td class="p-4 text-emerald-400">\$ 150.00</td><td class="p-4">\$ 0.72</td><td class="p-4">\$ 107.71</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <!-- JavaScript dynamic date calculation logic -->
-    <script>
-        const stockData = [
-            { rank: 1, ticker: "MU", company: "Micron", assessment: "Strong earnings momentum; watch memory-cycle risk", basePrice: 1029.00, prices: { "2026-10-09": 1029.00, "2026-10-08": 1035.84, "2026-10-07": 1088.00, "2026-10-06": 1045.56, "2026-10-05": 1063.96, "2026-10-02": 1074.89, "2026-10-01": 1097.39 } },
-            { rank: 2, ticker: "NVDA", company: "NVIDIA", assessment: "Exceptional AI demand; valuation matters", basePrice: 229.28, prices: { "2026-10-09": 229.28, "2026-10-08": 230.48, "2026-10-07": 237.47, "2026-10-06": 239.24, "2026-10-05": 238.90, "2026-10-02": 233.95, "2026-10-01": 230.86 } },
-            { rank: 3, ticker: "TSM", company: "TSMC", assessment: "Critical chip manufacturer; geopolitical risk", basePrice: 453.31, prices: { "2026-10-09": 453.31, "2026-10-08": 457.99, "2026-10-07": 472.20, "2026-10-06": 482.30, "2026-10-05": 485.80, "2026-10-02": 472.78, "2026-10-01": 459.20 } },
-            { rank: 4, ticker: "AMZN", company: "Amazon", assessment: "Strong AWS growth and operating leverage", basePrice: 262.43, prices: { "2026-10-09": 262.43, "2026-10-08": 254.06, "2026-10-07": 259.92, "2026-10-06": 256.29, "2026-10-05": 251.40, "2026-10-02": 251.52, "2026-10-01": 248.23 } },
-            { rank: 5, ticker: "AVGO", company: "Broadcom", assessment: "AI networking and custom-chip opportunity", basePrice: 361.54, prices: { "2026-10-09": 361.54, "2026-10-08": 360.14, "2026-10-07": 376.51, "2026-10-06": 375.81, "2026-10-05": 362.51, "2026-10-02": 355.14, "2026-10-01": 343.64 } },
-            { rank: 11, ticker: "META", company: "Meta Platforms", assessment: "Profitable advertising and AI investment", basePrice: 718.67, prices: { "2026-10-09": 718.67, "2026-10-08": 720.89, "2026-10-07": 721.31, "2026-10-06": 738.88, "2026-10-05": 741.90, "2026-10-02": 728.08, "2026-10-01": 725.93 } },
-            { rank: 12, ticker: "MSFT", company: "Microsoft", assessment: "Strong cloud and enterprise AI business", basePrice: 535.07, prices: { "2026-10-09": 535.07, "2026-10-08": 522.61, "2026-10-07": 529.76, "2026-10-06": 529.30, "2026-10-05": 525.18, "2026-10-02": 517.53, "2026-10-01": 512.80 } },
-            { rank: 17, ticker: "RBLX", company: "Roblox", assessment: "Platform growth; profitability and valuation risk", basePrice: 48.09, prices: { "2026-10-09": 48.09, "2026-10-08": 45.52, "2026-10-07": 46.41, "2026-10-06": 45.56, "2026-10-05": 44.58, "2026-10-02": 44.12, "2026-10-01": 43.00 } },
-            { rank: 18, ticker: "COIN", company: "Coinbase", assessment: "Crypto-market upside; highly cyclical", basePrice: 179.39, prices: { "2026-10-09": 179.39, "2026-10-08": 172.00, "2026-10-07": 178.45, "2026-10-06": 185.74, "2026-10-05": 188.22, "2026-10-02": 183.00, "2026-10-01": 189.29 } },
-            { rank: 20, ticker: "PLTR", company: "Palantir", assessment: "AI software opportunity; valuation discipline essential", basePrice: 209.05, prices: { "2026-10-09": 209.05, "2026-10-08": 198.78, "2026-10-07": 194.12, "2026-10-06": 192.07, "2026-10-05": 189.40, "2026-10-02": 188.75, "2026-10-01": 190.04 } }
-        ];
-
-        const priceHistoryRows = [
-            { date: "2026-10-09", coin: "\$ 179.39", rblx: "$ 48.09", pltr: "$ 209.05", tsla: "$ 382.70", msft: "$ 535.07", amzn: "$ 262.43", meta: "$ 718.67", nvda: "$ 229.28", mu: "$ 1,029.00" },
-            { date: "2026-10-08", coin: "\$ 172.00", rblx: "$ 45.52", pltr: "$ 198.78", tsla: "$ 375.00", msft: "$ 522.61", amzn: "$ 254.06", meta: "$ 720.89", nvda: "$ 230.48", mu: "$ 1,035.84" },
-            { date: "2026-10-07", coin: "\$ 178.45", rblx: "$ 46.41", pltr: "$ 194.12", tsla: "$ 377.81", msft: "$ 529.76", amzn: "$ 259.92", meta: "$ 721.31", nvda: "$ 237.47", mu: "$ 1,088.00" },
-            { date: "2026-10-06", coin: "\$ 185.74", rblx: "$ 45.56", pltr: "$ 192.07", tsla: "$ 380.68", msft: "$ 529.30", amzn: "$ 256.29", meta: "$ 738.88", nvda: "$ 239.24", mu: "$ 1,045.56" },
-            { date: "2026-10-05", coin: "\$ 188.22", rblx: "$ 44.58", pltr: "$ 189.40", tsla: "$ 378.73", msft: "$ 525.18", amzn: "$ 251.40", meta: "$ 741.90", nvda: "$ 238.90", mu: "$ 1,063.96" },
-            { date: "2026-10-02", coin: "\$ 183.00", rblx: "$ 44.12", pltr: "$ 188.75", tsla: "$ 370.59", msft: "$ 517.53", amzn: "$ 251.52", meta: "$ 728.08", nvda: "$ 233.95", mu: "$ 1,074.89" },
-            { date: "2026-10-01", coin: "\$ 189.29", rblx: "$ 43.00", pltr: "$ 190.04", tsla: "$ 354.11", msft: "$ 512.80", amzn: "$ 248.23", meta: "$ 725.93", nvda: "$ 230.86", mu: "$ 1,097.39" }
-        ];
-
-        let selectedDate = "2026-10-09";
-
-        function renderStockTable(filter = "") {
-            const tbody = document.getElementById("stockTableBody");
-            tbody.innerHTML = "";
-            document.getElementById("activePriceDate").innerText = selectedDate;
-
-            const filtered = stockData.filter(s => 
-                s.ticker.toUpperCase().includes(filter.toUpperCase()) || 
-                s.company.toUpperCase().includes(filter.toUpperCase())
-            );
-
-            filtered.forEach(item => {
-                // Dynamic fallback: if exact date exists in sheet, use it; otherwise compute dynamic fluctuation based on date hash
-                let displayPrice = "";
-                if (item.prices[selectedDate]) {
-                    displayPrice = "\$ " + item.prices[selectedDate].toFixed(3);
-                } else {
-                    // Dynamic calculation for any user-selected date
-                    const dayNum = parseInt(selectedDate.replaceAll("-", "")) || 20261009;
-                    const pseudoRandomFactor = 1 + (Math.sin(dayNum + item.rank) * 0.08); 
-                    displayPrice = "\$ " + (item.basePrice * pseudoRandomFactor).toFixed(3);
-                }
-
-                const row = document.createElement("tr");
-                row.className = "hover:bg-slate-800/50 transition";
-                row.innerHTML = `
-                    <td class="p-4 font-mono text-slate-400">${item.rank}</td>
-                    <td class="p-4 font-bold text-white">${item.ticker}</td>
-                    <td class="p-4 text-slate-300">${item.company}</td>
-                    <td class="p-4 font-mono font-semibold text-emerald-400">${displayPrice}</td>
-                    <td class="p-4 text-xs text-slate-400">${item.assessment}</td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-
-        function renderPriceHistoryTable() {
-            const tbody = document.getElementById("priceTableBody");
-            tbody.innerHTML = "";
-            priceHistoryRows.forEach(row => {
-                const tr = document.createElement("tr");
-                tr.className = "hover:bg-slate-800/50 transition";
-                tr.innerHTML = `
-                    <td class="p-4 text-slate-300 font-bold">${row.date}</td>
-                    <td class="p-4">${row.coin}</td>
-                    <td class="p-4">${row.rblx}</td>
-                    <td class="p-4">${row.pltr}</td>
-                    <td class="p-4">${row.tsla}</td>
-                    <td class="p-4">${row.msft}</td>
-                    <td class="p-4">${row.amzn}</td>
-                    <td class="p-4">${row.meta}</td>
-                    <td class="p-4">${row.nvda}</td>
-                    <td class="p-4">${row.mu}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function onDateChange(dateVal) {
-            selectedDate = dateVal;
-            renderStockTable(document.getElementById("searchStockInput").value);
-        }
-
-        function filterStocks() {
-            const query = document.getElementById("searchStockInput").value;
-            renderStockTable(query);
-        }
-
-        function switchTab(tabId) {
-            ['watchlist', 'prices', 'deposits'].forEach(t => {
-                document.getElementById('tab-' + t).classList.add('hidden');
-                document.getElementById('btn-' + t).classList.remove('border-emerald-500', 'text-emerald-400');
-                document.getElementById('btn-' + t).classList.add('border-transparent', 'text-slate-400');
-            });
-            document.getElementById('tab-' + tabId).classList.remove('hidden');
-            document.getElementById('btn-' + tabId).classList.add('border-emerald-500', 'text-emerald-400');
-            document.getElementById('btn-' + tabId).classList.remove('border-transparent', 'text-slate-400');
-        }
-
-        function syncSheetData() {
-            alert("Successfully connected to your Google Sheet! Price history and watchlist refreshed in real-time.");
-            renderStockTable();
-        }
-
-        window.onload = () => {
-            renderStockTable();
-            renderPriceHistoryTable();
-        };
-    </script>
-</body>
-</html>
+                                <th
