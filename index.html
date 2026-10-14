@@ -14,23 +14,49 @@
 <body class="bg-slate-950 text-slate-100 font-sans min-h-screen p-4 md:p-8">
     <div class="max-w-7xl mx-auto space-y-8">
         
-        <!-- Header Section -->
-        <header class="flex flex-col md:flex-row justify-between items-start md:items-center bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 p-6 rounded-2xl border border-slate-800 shadow-2xl gap-4">
+        <!-- Header Section with Dynamic Month/Year Selectors -->
+        <header class="flex flex-col lg:flex-row justify-between items-start lg:items-center bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 p-6 rounded-2xl border border-slate-800 shadow-2xl gap-4">
             <div class="flex items-center gap-4">
                 <div class="bg-emerald-600/20 p-3 rounded-xl border border-emerald-500/30">
                     <svg class="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                     </svg>
                 </div>
                 <div>
                     <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight text-white">Share Alert App — Price History</h1>
-                    <p class="text-xs md:text-sm text-slate-400 mt-0.5">Live time-series tracking synced from your Google Sheet</p>
+                    <p class="text-xs md:text-sm text-slate-400 mt-0.5">Filter by Month & Year with live Google Sheet synchronization</p>
                 </div>
             </div>
             
-            <div class="flex items-center gap-3 w-full md:w-auto">
-                <input id="searchInput" type="text" placeholder="Search by date (e.g. 2026-09)..." 
-                    class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-emerald-500 w-full md:w-64 shadow-inner">
+            <!-- Dynamic Month / Year Selection Controls -->
+            <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+                <div class="flex items-center gap-2 bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 shadow-inner">
+                    <span class="text-xs text-slate-400 font-medium">Month:</span>
+                    <select id="monthSelect" onchange="filterDataByDate()" class="bg-transparent text-sm text-white focus:outline-none cursor-pointer">
+                        <option value="All" class="bg-slate-900">All Months</option>
+                        <option value="January" class="bg-slate-900">January</option>
+                        <option value="February" class="bg-slate-900">February</option>
+                        <option value="March" class="bg-slate-900">March</option>
+                        <option value="April" class="bg-slate-900">April</option>
+                        <option value="May" class="bg-slate-900">May</option>
+                        <option value="June" class="bg-slate-900">June</option>
+                        <option value="July" class="bg-slate-900">July</option>
+                        <option value="August" class="bg-slate-900">August</option>
+                        <option value="September" selected class="bg-slate-900">September</option>
+                        <option value="October" class="bg-slate-900">October</option>
+                        <option value="November" class="bg-slate-900">November</option>
+                        <option value="December" class="bg-slate-900">December</option>
+                    </select>
+                </div>
+
+                <div class="flex items-center gap-2 bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 shadow-inner">
+                    <span class="text-xs text-slate-400 font-medium">Year:</span>
+                    <select id="yearSelect" onchange="filterDataByDate()" class="bg-transparent text-sm text-white focus:outline-none cursor-pointer">
+                        <option value="2026" selected class="bg-slate-900">2026</option>
+                        <option value="2025" class="bg-slate-900">2025</option>
+                        <option value="2024" class="bg-slate-900">2024</option>
+                    </select>
+                </div>
                 
                 <!-- Refresh Button -->
                 <button id="refreshBtn" onclick="loadSheetData()" class="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-lg shadow-emerald-600/20 cursor-pointer active:scale-95 whitespace-nowrap">
@@ -46,7 +72,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div class="lg:col-span-2 bg-slate-900/80 backdrop-blur border border-slate-800 p-6 rounded-2xl shadow-xl flex flex-col justify-between">
                 <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-lg font-bold text-slate-200">Top 10 Peak Prices Recorded</h2>
+                    <h2 class="text-lg font-bold text-slate-200">Top 10 Peak Prices (Filtered Range)</h2>
                     <span class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-full font-medium">Market Analytics</span>
                 </div>
                 <div class="relative h-64 w-full">
@@ -57,13 +83,13 @@
             <!-- Summary Info -->
             <div class="bg-gradient-to-br from-slate-900 to-emerald-950 border border-slate-800 p-6 rounded-2xl shadow-xl flex flex-col justify-between">
                 <div>
-                    <h2 class="text-lg font-bold text-slate-200 mb-2">History Metrics</h2>
-                    <p class="text-xs text-slate-400 mb-6">Aggregated values extracted from your Price History log entries.</p>
+                    <h2 class="text-lg font-bold text-slate-200 mb-2">Monthly Overview</h2>
+                    <p class="text-xs text-slate-400 mb-6">Metrics reflecting records matching your active month selection.</p>
                 </div>
                 <div class="space-y-4">
                     <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 flex justify-between items-center">
-                        <span class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Total Logged Rows</span>
-                        <span id="totalRowsCount" class="text-xl font-bold text-emerald-400 font-mono">0</span>
+                        <span class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Filtered Rows</span>
+                        <span id="filteredRowsCount" class="text-xl font-bold text-emerald-400 font-mono">0</span>
                     </div>
                     <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 flex justify-between items-center">
                         <span class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Feed Status</span>
@@ -75,12 +101,12 @@
             </div>
         </div>
 
-        <!-- Dynamic Data Table Section -->
+        <!-- Dynamic Data Table Section (Starts at S.N row 2) -->
         <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden">
             <div class="overflow-x-auto">
                 <table id="dataTable" class="w-full text-left border-collapse">
                     <thead id="tableHeader">
-                        <!-- Dynamically filled based on sheet columns -->
+                        <!-- Populated from row 2 header mapping -->
                     </thead>
                     <tbody id="tableBody" class="divide-y divide-slate-800/60 text-sm">
                         <!-- Populated Dynamically -->
@@ -98,7 +124,7 @@
         // REPLACE THIS URL with your published Google Sheet CSV link for the "Price History" tab
         const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTuG_3xn7oY5-xtXKk80cO1pw1MPFESrq67FBbcyTSpSeFvOuHYCBXhtO9XoKnzT4ODPrh6-YOMTZ05/pub?gid=1871836325&single=true&output=csv';
 
-        let tableData = [];
+        let allRawData = [];
         let tableColumns = [];
         let priceChartInstance = null;
 
@@ -113,17 +139,25 @@
 
             Papa.parse(SHEET_CSV_URL, {
                 download: true,
+                // Since row 1 has Month/Year controls and row 2 has S.N, Date, COIN etc., 
+                // we skip the first row so PapaParse grabs headers properly from row 2 (S.N).
+                beforeFirstChunk: function(chunk) {
+                    let lines = chunk.split(/\r\n|\n/);
+                    // Discard row 1 if it contains metadata labels like "Month" / "September"
+                    if (lines.length > 1 && lines[0].includes('Month')) {
+                        lines.shift(); 
+                    }
+                    return lines.join('\n');
+                },
                 header: true,
                 skipEmptyLines: true,
                 complete: function(results) {
-                    tableData = results.data;
+                    allRawData = results.data;
                     if (results.meta && results.meta.fields) {
                         tableColumns = results.meta.fields;
                     }
-                    document.getElementById('totalRowsCount').innerText = tableData.length;
                     renderTableHeaders();
-                    renderTable(tableData);
-                    updateChart(tableData);
+                    filterDataByDate(); // Applies initial month selection filter
                     setTimeout(() => icon.classList.remove('animate-spin'), 500);
                 },
                 error: function(err) {
@@ -145,12 +179,43 @@
             thead.innerHTML = html;
         }
 
+        // Filter data based on selected Month & Year dropdowns matching the 'Date' column format (e.g. 2026-09-01)
+        function filterDataByDate() {
+            const selectedMonthName = document.getElementById('monthSelect').value;
+            const selectedYear = document.getElementById('yearSelect').value;
+
+            // Map month names to numbers (e.g. September -> "09")
+            const monthMap = {
+                'January': '01', 'February': '02', 'March': '03', 'April': '04',
+                'May': '05', 'June': '06', 'July': '07', 'August': '08',
+                'September': '09', 'October': '10', 'November': '11', 'December': '12'
+            };
+
+            const targetMonthCode = monthMap[selectedMonthName];
+
+            const filteredData = allRawData.filter(row => {
+                // Find date field (usually named 'Date' or second column)
+                const dateVal = row['Date'] || row[tableColumns[1]] || '';
+                
+                if (!dateVal) return false;
+
+                const yearMatch = dateVal.startsWith(selectedYear);
+                const monthMatch = targetMonthName === 'All' || (targetMonthCode && dateVal.includes(`-${targetMonthCode}-`));
+
+                return yearMatch && monthMatch;
+            });
+
+            document.getElementById('filteredRowsCount').innerText = filteredData.length;
+            renderTable(filteredData);
+            updateChart(filteredData);
+        }
+
         function renderTable(data) {
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
             
             if (data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="10" class="py-8 text-center text-slate-400">No price history records found.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="15" class="py-8 text-center text-slate-400">No records found for the selected month/year.</td></tr>`;
                 return;
             }
 
@@ -178,21 +243,23 @@
         function updateChart(data) {
             const ctx = document.getElementById('priceChart').getContext('2d');
             
-            // Extract all numeric prices across all columns/rows to find top 10 peak values
             let allPrices = [];
             data.forEach(row => {
                 Object.keys(row).forEach(key => {
-                    const val = row[key];
-                    if (val && typeof val === 'string' && val !== 'Weekend') {
-                        const num = parseFloat(val.replace(/[^0-9.-]+/g,""));
-                        if (!isNaN(num) && num > 1) {
-                            allPrices.push({ label: `${key} (${row['A'] || row[tableColumns[0]] || 'Date'})`, price: num });
+                    // Skip metadata columns like S.N and Date
+                    if (key !== 'S.N' && key !== 'Date' && key !== tableColumns[0] && key !== tableColumns[1]) {
+                        const val = row[key];
+                        if (val && typeof val === 'string' && val !== 'Weekend') {
+                            const num = parseFloat(val.replace(/[^0-9.-]+/g,""));
+                            if (!isNaN(num) && num > 0) {
+                                allPrices.push({ label: `${key} (${row['Date'] || 'Day'})`, price: num });
+                            }
                         }
                     }
                 });
             });
 
-            // Sort descending to get highest prices
+            // Sort descending to get highest prices for Top 10 chart
             allPrices.sort((a, b) => b.price - a.price);
             const top10 = allPrices.slice(0, 10);
 
@@ -208,7 +275,7 @@
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: 'Value (\$)',
+                        label: 'Price (\$)',
                         data: prices,
                         backgroundColor: 'rgba(16, 185, 129, 0.6)',
                         borderColor: 'rgba(16, 185, 129, 1)',
@@ -236,27 +303,18 @@
             });
         }
 
-        // Search Filter across row data
-        document.getElementById('searchInput').addEventListener('input', function(e) {
-            const term = e.target.value.toLowerCase();
-            const filtered = tableData.filter(row => {
-                return Object.values(row).some(val => val && val.toLowerCase().includes(term));
-            });
-            renderTable(filtered);
-        });
-
         // Basic Sorting
         let sortDirection = false;
         function sortTable(columnIndex) {
             sortDirection = !sortDirection;
             const key = tableColumns[columnIndex];
 
-            tableData.sort((a, b) => {
+            allRawData.sort((a, b) => {
                 let valA = a[key] || '';
                 let valB = b[key] || '';
                 return sortDirection ? valA.localeCompare(valB) : valB.localeCompare(valA);
             });
-            renderTable(tableData);
+            filterDataByDate();
         }
 
         // Initial Load
